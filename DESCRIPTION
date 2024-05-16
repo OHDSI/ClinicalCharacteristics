@@ -4,7 +4,7 @@ Version: 0.2.10
 Authors@R: c(
     person("Martin", "Lavallee", , "martin.lavallee@boehringer-ingelheim.com", role = c("aut", "cre")),
     person("Katy", "Sadowski", , "katy.sadowski@boehringer-ingelheim.com", role = c("aut")),
-    person("Ajit", "Londhe", , "katy.sadowski@boehringer-ingelheim.com", role = c("aut"))
+    person("Ajit", "Londhe", , "ajit.londhe@boehringer-ingelheim.com", role = c("aut"))
   )
 Description: A tool to characterize cohorts using a table shell approach.
 License: Apache License (>= 2)
