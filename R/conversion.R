@@ -294,15 +294,13 @@ year_sql <- function(catId) {
 
 }
 
-categorize_value <- function(connection, dataTable, breaksTable, workDatabaseSchema, catId, year) {
+categorize_value <- function(connection, dataTable, breaksTable,
+                             workDatabaseSchema, catId, year) {
 
   dbms <- connection@dbms
 
-  if (dbms == "snowflake") {
-    breaks_dat_tmp <- glue::glue("{workDatabaseSchema}.breaks_tmp")
-  } else{
-    breaks_dat_tmp <- "#breaks"
-  }
+  breaks_dat_tmp <- "#breaks"
+
   if (year) {
     cat_sql <- year_sql(catId) |> glue::glue()
   } else {
@@ -320,7 +318,8 @@ categorize_value <- function(connection, dataTable, breaksTable, workDatabaseSch
     /* Step 3: Drop temp score tables */
     TRUNCATE TABLE {breaks_dat_tmp}; DROP TABLE {breaks_dat_tmp};
     TRUNCATE TABLE {breaksTable}; DROP TABLE {breaksTable};") |>
-    SqlRender::translate(targetDialect = dbms)
+    SqlRender::translate(targetDialect = dbms,
+                         tempEmulationSchema = workDatabaseSchema)
 
   DatabaseConnector::executeSql(connection, sql)
   invisible(sql)
@@ -335,11 +334,7 @@ score_value <- function(connection, dataTable, scoreTable, workDatabaseSchema, s
 
   dbms <- connection@dbms
 
-  if (dbms == "snowflake") {
-    score_dat_tmp <- glue::glue("{workDatabaseSchema}.score_tmp")
-  } else{
-    score_dat_tmp <- "#score"
-  }
+  score_dat_tmp <- "#score"
 
   newId <- (scoreId * 1000) + 1
   scoreSql2 <- glue::glue(scoreSql)
@@ -354,7 +349,8 @@ score_value <- function(connection, dataTable, scoreTable, workDatabaseSchema, s
     /* Step 3: Drop temp score tables */
     TRUNCATE TABLE {score_dat_tmp}; DROP TABLE {score_dat_tmp};
     TRUNCATE TABLE {scoreTable}; DROP TABLE {scoreTable};") |>
-    SqlRender::translate(targetDialect = dbms)
+    SqlRender::translate(targetDialect = dbms,
+                         tempEmulationSchema = workDatabaseSchema)
 
   DatabaseConnector::executeSql(connection, sql)
   invisible(sql)

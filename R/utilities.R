@@ -37,43 +37,50 @@ domain_translate <- function(domain) {
                  'record_id' = "condition_occurrence_id",
                  'concept_id' ="condition_concept_id",
                  'concept_type_id' = "condition_type_concept_id",
-                 'event_date' = "condition_start_date"
+                 'event_date' = "condition_start_date",
+                 'source_concept_id' = "condition_source_concept_id"
                ),
                "drug_exposure" = list(
                  'record_id' = "drug_exposure_id",
                  'concept_id' = "drug_concept_id",
                  'concept_type_id' = "drug_type_concept_id",
-                 'event_date' = "drug_exposure_start_date"
+                 'event_date' = "drug_exposure_start_date",
+                 'source_concept_id' = "drug_source_concept_id"
                ),
                "procedure_occurrence" = list(
                  'record_id' = "procedure_occurrence_id",
                  'concept_id' = "procedure_concept_id",
                  'concept_type_id' = "procedure_type_concept_id",
-                 'event_date' = "procedure_date"
+                 'event_date' = "procedure_date",
+                 'source_concept_id' = "procedure_source_concept_id"
                ),
                "observation" = list(
                  'record_id' = "observation_id",
                  'concept_id' = "observation_concept_id",
                  'concept_type_id' = "observation_type_concept_id",
-                 'event_date' = "observation_date"
+                 'event_date' = "observation_date",
+                 'source_concept_id' = "observation_source_concept_id"
                ),
                "device_exposure" = list(
                  'record_id' = "device_exposure_id",
                  'concept_id' = "device_concept_id",
                  'concept_type_id' = "device_type_concept_id",
-                 'event_date' = "device_exposure_start_date"
+                 'event_date' = "device_exposure_start_date",
+                 'source_concept_id' = "device_source_concept_id"
                ),
                "measurement" = list(
                  'record_id' = "measurement_id",
                  'concept_id' = "measurement_concept_id",
                  'concept_type_id' = "measurement_type_concept_id",
-                 'event_date' = "measurement_date"
+                 'event_date' = "measurement_date",
+                 'source_concept_id' = "measurement_source_concept_id"
                ),
                "visit_occurrence" = list(
                  'record_id' = "visit_occurrence_id",
                  'concept_id' = "visit_concept_id",
                  'concept_type_id' = "visit_type_concept_id",
-                 'event_date' = "visit_start_date"
+                 'event_date' = "visit_start_date",
+                 'source_concept_id' = "visit_source_concept_id"
                ),
                "provider" = list(
                  'concept_id' = "specialty_concept_id",
@@ -165,6 +172,22 @@ count_label <- function(domain) {
                'condition_occurrence' = "condition count",
                'visit_occurrence' = "visit count")
   return(lb)
+}
+
+#' SQL for source concept WHERE clause
+source_concept_sql <- function(domain, sourceConcepts) {
+
+  domain_trans <- domain_translate(domain)
+  if (!all(is.na(sourceConcepts))) {
+    sourceConcepts <- paste(sourceConcepts, collapse = ", ")
+    sourceConceptSql <- glue::glue(
+      "AND {domain_trans$source_concept_id} IN ({sourceConcepts})"
+    )
+  } else {
+    sourceConceptSql <- ""
+  }
+
+  return(sourceConceptSql)
 }
 
 

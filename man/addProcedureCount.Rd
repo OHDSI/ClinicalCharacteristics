@@ -9,7 +9,8 @@ addProcedureCount(
   timeWindows,
   conceptSets = NULL,
   categorize = NULL,
-  conceptType = NULL
+  conceptType = NULL,
+  sourceConcepts = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ This function takes a breaksStrategy object to describe the categories ow it is 
 If the parameter is NULL then no categorization summary is done}
 
 \item{conceptType}{the procedure type concept ids to use to limit the count}
+
+\item{sourceConcepts}{the source concept ids to use to limit the count}
 }
 \value{
 adds a countChar object of procedure into the clinChar extractSettings slot

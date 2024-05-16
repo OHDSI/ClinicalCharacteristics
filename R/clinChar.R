@@ -61,7 +61,7 @@ makeClinChar <- function(targetCohortIds,
     # clinChar@executionSettings@timeWindowTable <- glue::glue("{workDatabaseSchema}.tw_tmp")
     # clinChar@executionSettings@codesetTable <- glue::glue("{workDatabaseSchema}.codeset_tmp")
   } else{
-    clinChar@executionSettings@tempEmulationSchema <- NULL
+    clinChar@executionSettings@tempEmulationSchema <- NA_character_
     clinChar@executionSettings@dataTable <- glue::glue("#{datTableName}")
   }
 

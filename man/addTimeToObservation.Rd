@@ -10,7 +10,8 @@ addTimeToObservation(
   timeWindows,
   limit = c("first", "last", "all"),
   conceptType = NULL,
-  categorize = NULL
+  categorize = NULL,
+  sourceConcepts = NULL
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ all vairable will pull all values in the time window}
 \item{categorize}{describes how the continuous value should be categorized.
 This function takes a breaksStrategy object to describe the categories ow it is left NULL.
 If the parameter is NULL then no categorization summary is done}
+
+\item{sourceConcepts}{the source concept ids to use to limit the query}
 }
 \value{
 adds a timeToChar object of observation into the clinChar extractSettings slot

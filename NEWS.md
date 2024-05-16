@@ -1,3 +1,9 @@
+# ClinicalCharacteristics 0.2.10
+
+* add source concepts as option to chars
+* add tempEmulationSchema for snowflake
+* add new package maintainers
+
 # ClinicalCharacteristics 0.2.9
 
 * hot fix asCount param in specialty Char 

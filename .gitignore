@@ -3,3 +3,4 @@ extras/
 errorReportSql.txt
 R/archive/
 clinCharQuery.sql
+.Rhistory

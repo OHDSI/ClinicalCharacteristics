@@ -10,7 +10,8 @@ addVisitPresence(
   timeWindows,
   limit = c("first", "last", "all"),
   conceptType = NULL,
-  score = NULL
+  score = NULL,
+  sourceConcepts = NULL
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ all vairable will pull all values in the time window}
 \item{score}{describes how the categorical value should be converted to a continuous score.
 This function takes a scoreStrategy object to describe the scoring ow it is left NULL.
 If the parameter is NULL then no continuous summary is done}
+
+\item{sourceConcepts}{the source concept ids to use to limit the query}
 }
 \value{
 adds a presenceChar object of visit_occurrence into the clinChar extractSettings slot
