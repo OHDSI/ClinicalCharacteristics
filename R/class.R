@@ -521,19 +521,10 @@ setMethod("as_sql", "targetCohort", function(x){
 
 setMethod("as_sql", "ageChar", function(x){
 
-  domain <- x@domain
-  sql <- glue::glue(
-    "-- Make {domain} query
-     INSERT INTO {{dataTable}} (cohort_id, subject_id, category_id, time_id, value_id, value)
-     SELECT t.cohort_definition_id AS cohort_id, t.subject_id,
-     {x@orderId} AS category_id,
-     -999 AS time_id,
-     -999 AS value_id,
-     YEAR(t.cohort_start_date) - d.year_of_birth AS value
-     FROM {{targetTable}} t
-     JOIN {{cdmDatabaseSchema}}.person d
-     ON t.subject_id = d.person_id;"
-  )
+  orderId <- x@orderId
+  sql <- age_sql(orderId) |>
+    insert_into_dat()
+
   return(sql)
 
 })
@@ -543,18 +534,11 @@ setMethod("as_sql", "ageChar", function(x){
 
 setMethod("as_sql", "yearChar", function(x){
 
-  domain <- x@domain
-  sql <- glue::glue(
-    "-- Make {domain} query
-     INSERT INTO {{dataTable}} (cohort_id, subject_id, category_id, time_id, value_id, value)
-     SELECT t.cohort_definition_id AS cohort_id, t.subject_id,
-     {x@orderId} AS category_id,
-     -999 AS time_id,
-     YEAR(t.cohort_start_date) AS value_id,
-     1 AS value
-     FROM {{targetTable}} t
-     ;"
-  )
+
+  orderId <- x@orderId
+  sql <- year_sql(orderId) |>
+    insert_into_dat()
+
   return(sql)
 
 })
@@ -562,22 +546,11 @@ setMethod("as_sql", "yearChar", function(x){
 ## demographic --------------
 setMethod("as_sql", "demoConceptChar", function(x){
 
-
   domain <- x@domain
+  orderId <- x@orderId
   demo_trans <- domain_translate(domain)
-
-  sql <- glue::glue(
-    "-- Make {domain} query
-    INSERT INTO {{dataTable}} (cohort_id, subject_id, category_id, time_id, value_id, value)
-    SELECT t.cohort_definition_id AS cohort_id, t.subject_id,
-     {x@orderId} AS category_id,
-     -999 AS time_id,
-     d.{demo_trans$concept_id} AS value_id,
-     1 AS value
-     FROM {{targetTable}} t
-     JOIN {{cdmDatabaseSchema}}.person d
-     ON t.subject_id = d.person_id;"
-  )
+  sql <- demo_concept_sql(domain, orderId) |>
+    insert_into_dat()
 
   return(sql)
 })
@@ -586,20 +559,9 @@ setMethod("as_sql", "demoConceptChar", function(x){
 ## location -------------
 setMethod("as_sql", "locationChar", function(x){
 
-  domain <- x@domain
-  sql <- glue::glue(
-    "-- Make {domain} query
-    INSERT INTO {{dataTable}} (cohort_id, subject_id, category_id, time_id, value_id, value)
-    SELECT t.cohort_definition_id AS cohort_id, t.subject_id,
-     {x@orderId} AS category_id,
-     -999 AS time_id,
-     d.location_id AS value_id,
-     1 AS value
-     FROM {{targetTable}} t
-     JOIN {{cdmDatabaseSchema}}.person d
-     ON t.subject_id = d.person_id
-     WHERE d.location_ID IS NOT NULL;"
-  )
+  orderId <- x@orderId
+  sql <- location_sql(orderId) |>
+    insert_into_dat()
 
   return(sql)
 })
