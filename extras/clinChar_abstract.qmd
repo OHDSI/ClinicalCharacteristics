@@ -1,0 +1,126 @@
+---
+title: "ClinicalCharacteristics Abstract"
+author: 
+  - name: Martin Lavallee
+  - name: Ajit Londhe
+  - name: Katy Sadowski
+  - name: Ron Herrera
+format:
+  docx:
+    toc: false
+    number-sections: false
+    highlight-style: github
+---
+
+## Background
+
+When conducting a characterization study a common task is populating table-shells defined by your clinical colleague. In principal these table shells should be simple evidence to generate; reporting counts and percentages for categorical variables and summary statistics for continuous variables (mean, sd, median, percentiles, etc.). Surprisingly, this task ends up being non-trivial when using the available OHDSI tools; whether that is because the table shells ask for summaries on OMOP domains with minimal support (cost, episode, or location, etc) from available tools or the analyst spends a lot of time wrangling `FeatureExtraction` (HADES package used to retrieve covariates) output. Whether we like them or not, table-shell are a reality of RWE work thus the OHDSI community would benefit from tools that make completion of this task more explicit and simple. We have developed a new open-source OHDSI R package called `ClinicalCharacteristics` used to characterize cohorts of interest via a table-shelling approach. Our main design principal is explicitness; meaning we limit retrieval of aggregated evidence based on the exact specification of concept sets related to a domain. In this presentation, we will showcase how to use ClinicalCharacteristics in four scenarios: first, describing demographics; second describing comorbidities and co-medications; third describing health care resource utilization (including number of prescriptions, visits, and cost of services) and fourth, how to characterize lab measurements. 
+
+
+## Methods
+
+The original reasons for developing `ClinicalCharacteristics` were two-fold: one, cost and geography summaries were specified in table-shells forcing custom code; and two, comorbidities were strictly specified based on a code-list prepared by a clinical colleague. When building RWE pipelines in R, the default OHDSI tool for characterization is `FeatureExtraction`. The original intent of `FeatureExtraction` was to extract as many clinical features to use as covariates for high-dimensional modelling. It is a remarkable and efficient tool, however it is awkward to use for explicit table-shells. You could also use ATLAS to characterize, however there is not good coverage for the cost table or geographies. We also prefer programmatic approaches to characterization because it is typical a piece within a larger coding pipeline, leveraging other OHDSI tools. Given these limitations in the OHDSI toolkit we developed `ClinicalCharacteristics` in order to more efficiently attack table-shells. 
+
+`ClinicalCharacteristics` tethers itself to `circe-be` logic, meaning the construction of SQL is analogous to the standardized sql used to generate cohort definitions on OMOP data. In particular, we use `circe-be` to build concept set logic to enumerate occurrences within an OMOP domain. A characterization requires the following set of components:
+
+- **Target Cohort**: the study population we wish to characterize, given it has been generated to a cohort table (via CohortGenerator).
+- **Domain**: specification of the OMOP table we want to link to for a summary
+- **Concept Set**: logic used to set a code list to enumerate occurrences of an event
+- **Window**: the period of time we wish to observe the event
+- **Summary type**: the type of variable to summarize, this could be a binary measure of presence or a numeric measure of time, cost or count. 
+- **Attribute**: (optional) sometimes we wish to only count the occurrence of an event based on other logic, for example only count conditions found in inpatient setting or drugs with a specific days supply. 
+- **Transformation**: (optional) sometimes we wish to dichotomize a continuous value into categories (i.e age groups or lab value ranges). Other times we wish to apply a weight to a binary in order to make a continuous score, like the charlson comorbidity score.
+
+The `ClinicalCharacteristics` software aims to capture repeated patterns based on this criteria in order to provide a large set of possible summary tables. 
+
+
+## Results
+
+The demo of `ClinicalCharacteristics` walks through four use cases of characterizes via a table shell approach: demographics, comorbidities, hcrus and labs. The general workflow is as follows:
+
+1) Specify OMOP database connection and schema
+2) Ensure target cohorts have been built to a cohort table
+3) Identify concept sets to summarize
+4) Build the `clinChar` object, the shell you want to generate
+5) Run the characterization query
+6) Review the results
+
+A code snippet of the general workflow is provided: 
+
+```
+library(ClinicalCharacteristics)
+library(Capr)
+
+# make connection details
+connectionDetails <- DatabaseConnector::createConnectionDetails(
+  dbms = '<dbms>',
+  user = "<user>",
+  password = "<password>",
+  connectionString = "<jdbcString>"
+)
+
+executionSettings <- list(
+  databaseName = "my_omop_data",
+  cdmDatabaseSchema = "cdm",
+  workDatabaseSchema = "scratch",
+  cohortTable = "cohorts"
+)
+
+# define output folder
+outputFolder <- here::here("my_output")
+
+# establish connection
+connection <- DatabaseConnector::connect(connectionDetails)
+
+clinChar <- makeClinChar(
+  targetCohortIds = 1,
+  targetCohortNames = "Target",
+  dbms = connection@dbms,
+  database = executionSettings$databaseName,
+  cdmDatabaseSchema = executionSettings$cdmDatabaseSchema,
+  workDatabaseSchema = executionSettings$workDatabaseSchema,
+  cohortTable = executionSettings$cohortTable
+) |>
+  addAgeChar(categorize = age10yrGrp()) |> # age summary reported in 10yr groups
+  addGenderChar() |> # gender summary
+  addRaceChar() |> # race summary
+  addYearChar(categorize = year5yrGrp()) |> # year summary reported in 5 yr groups
+  addConditionPresence( # presence of charlson comorbidities
+    conceptSets = charlsonConcepts(),
+    timeWindows = makeTimeTable(time_a = -365, time_b = -1),
+    limit = "first",
+    score = charlsonIndexScore(ageId = 1) # score binary 
+  ) |>
+  addDrugPresence( # presence of atc2 class
+    conceptSets = atcConcepts(),
+    timeWindows = makeTimeTable(
+      time_a = c(-365, 0, 0, 0),
+      time_b = c(-1, 183, 365, 730)
+      ),
+    limit = "first"
+  ) |>
+  addVisitCount( # count number of visits for IP, OP, ER
+    conceptSets = standardVisitConcepts(),
+    timeWindows = makeTimeTable(
+      time_a = c(-365, 0, 0, 0),
+      time_b = c(-1, 183, 365, 730)
+    )
+  )
+
+
+# run the clinical characteristics
+dt <- runClinicalCharacteristics(connection = connection,
+                                      clinChar = clinChar,
+                                      saveName = "internals_test",
+                                      savePath = outputFolder,
+                                      dropDat = FALSE)
+
+# preview the categorical results
+previewClincalCharacteristics(dt, type = "categorical")
+# preview the continuous results
+previewClincalCharacteristics(dt, type = "continuous")
+#build a report
+createReport(clinChar, outputFolder = outputFolder)
+
+```
+
