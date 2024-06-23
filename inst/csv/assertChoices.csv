@@ -1,0 +1,12 @@
+choice,category
+"Condition",Domain
+"Device",Domain
+"Drug",Domain
+"Observation",Domain
+"Procedure",Domain
+"Year",Domain
+"Age",Domain
+"Gender",Domain
+First,Limit
+Last,Limit
+All,Limit
