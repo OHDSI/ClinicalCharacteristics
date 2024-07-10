@@ -1,4 +1,5 @@
 
+
 # TableShell -----
 
 #' @description
@@ -7,32 +8,39 @@
 #' @export
 TableShell <- R6::R6Class("TableShell",
   public = list(
-    shellTitle = NULL,
-    targetCohortIds = NULL,
-    initialize = function(shellTitle,
-                          targetCohortIds = NULL) {
-
-      checkmate::assert_string(x = shellTitle, na.ok = FALSE, min.chars = 1, null.ok = FALSE)
-      checkmate::assert_numeric(x = targetCohortIds, null.ok = TRUE)
-
-      self$shellTitle <- shellTitle
-      self$targetCohortIds <- targetCohortIds
+    setTitle = function(title) {
+      .setString(private = private,
+                 key = "title",
+                 value = title)
     },
-    addSections = function(sections) {
+    getTitle = function() {
+      return(.get(private, "title"))
+    },
+    setTargetCohortIds = function(targetCohortIds) {
+      checkmate::assert_numeric(x = targetCohortIds, null.ok = TRUE)
+      private$targetCohortIds <- targetCohortIds
+    },
+    getTargetCohortIds = function() {
+      return(private$targetCohortIds)
+    },
+    setSections = function(sections) {
       checkmate::assert_list(x = sections, types = c("Section"), min.len = 1)
-      private$sections <- lapply(sections, function(section) {
-        if (is.null(section$targetCohortIds) &
-            !is.null(self$targetCohortIds)) {
-          section$targetCohortIds <- self$targetCohortIds
-        }
-      })
+      private$sections <- sections
     },
     getSections = function() {
       return(private$sections)
+    },
+    setExectionSettings = function(executionSettings) {
+      private$executionSettings <- executionSettings
+    },
+    getExecutionSettings = function() {
+      return (private$executionSettings)
     }
   ),
   private = list(
-    sections = NULL
+    title = NULL,
+    sections = NULL,
+    executionSettings = NULL
   )
 )
 
@@ -44,30 +52,53 @@ TableShell <- R6::R6Class("TableShell",
 #' @export
 Section <- R6::R6Class("Section",
   public = list(
-    targetCohortIds = NULL,
-    sectionTitle = NULL,
-    sectionOrdinal = NA,
-
-    initialize = function(sectionTitle,
-                          sectionOrdinal = NULL,
-                          targetCohortIds = NULL) {
-
-      checkmate::assert_string(x = sectionTitle, na.ok = FALSE, min.chars = 1, null.ok = FALSE)
-      checkmate::assert_number(x = sectionOrdinal, na.ok = TRUE, null.ok = TRUE)
-      checkmate::assert_numeric(x = targetCohortIds, null.ok = TRUE)
-
-      self$sectionTitle <- sectionTitle
-      self$sectionOrdinal <- sectionOrdinal
-      self$targetCohortIds <- targetCohortIds
+    setTitle = function(title) {
+      .setString(private = private,
+                 key = "title",
+                 value = title)
     },
+    getTitle = function() {
+      return(.get(private, "title"))
+    },
+    setOrdinal = function(ordinal) {
+      checkmate::assert_number(x = sectionOrdinal, na.ok = TRUE, null.ok = TRUE)
+      private$ordinal <- ordinal
+    },
+    getOrdinal = function() {
+      return(private$ordinal)
+    },
+    setTableShell = function(tableShell) {
+      checkmate::assert_class(x = tableShell, classes = c("TableShell"))
+      private$tableShell <- tableShell
+    },
+    getTableShell = function() {
+      return(private$tableShell)
+    },
+    setTargetCohortIds = function(targetCohortIds) {
+      checkmate::assert_numeric(x = targetCohortIds, null.ok = TRUE)
+      private$targetCohortIds <- targetCohortIds
+      private$lineItems <- .cascadeObject(cascadeFrom = private,
+                                          cascadeName = "targetCohortIds",
+                                          cascadeObjects = private$sections)
 
-    addLineItems = function(lineItems) {
+    },
+    getTargetCohortIds = function() {
+      return(private$targetCohortIds)
+    },
+    setLineItems = function(lineItems) {
       checkmate::assert_list(x = lineItems, types = c("LineItem"), min.len = 1)
       private$lineItems <- lineItems
+    },
+    getLineItems = function() {
+      return(private$lineItems)
     }
   ),
   private = list(
-    lineItems = NULL
+    tableShell = NULL,
+    title = NULL,
+    ordinal = NA,
+    lineItems = NULL,
+    targetCohortIds = NULL
   )
 )
 
@@ -81,26 +112,51 @@ Section <- R6::R6Class("Section",
 LineItem <- R6::R6Class("LineItem",
   public = list(
     itemOrdinal = NA,
-    itemCategory = NULL,
+    itemLabelCategory = NULL,
     itemLabel = NULL,
 
     initialize = function(itemOrdinal = NA,
-                          itemCategory,
-                          itemLabel) {
+                          itemLabelCategory = NULL,
+                          itemLabel = NULL) {
 
       checkmate::assert_number(x = itemOrdinal, na.ok = TRUE, null.ok = TRUE)
-      checkmate::assert_string(x = itemCategory, null.ok = FALSE)
+      checkmate::assert_string(x = itemLabelCategory, null.ok = FALSE)
       checkmate::assert_string(x = itemLabel, null.ok = FALSE)
 
       self$itemOrdinal <- itemOrdinal
-      self$itemCategory <- itemCategory
+      self$itemLabelCategory <- itemLabelCategory
       self$itemLabel <- itemLabel
     },
+
+    setTableShell = function(tableShell) {
+      checkmate::assert_class(x = tableShell, classes = c("TableShell"))
+      private$tableShell <- tableShell
+    },
+    getTableShell = function() {
+      return(private$tableShell)
+    },
+    setShowMissing = function(showMissing) {
+      checkmate::assert_logical(x = showMissing, null.ok = FALSE, len = 1, any.missing = FALSE, all.missing = FALSE)
+      private$showMissing <- showMissing
+    },
+    getShowMissing = function() {
+      return(private$showMissing)
+    }
+    setStatisticType = function(statisticType) {
+      checkmate::assert_choice(x = statisticType,
+                               choices = .getAssertChoices(category = "StatisticType"))
+      private$statisticType <- statisticType
+    },
+    getStatisticType = function() {
+      return(private$statisticType)
+    },
     setDomain = function(domain) {
-      checkmate::assert_choice(x = domain, choices = c(
-        .getAssertChoices(category = "Domain")
-      ))
+      checkmate::assert_choice(x = domain,
+                               choices = .getAssertChoices(category = "Domain"))
       private$domain <- domain
+    },
+    getDomain = function() {
+      return(private$domain)
     },
     setLimit = function(limit) {
       checkmate::assert_choice(x = limit, choices = c(
@@ -108,42 +164,49 @@ LineItem <- R6::R6Class("LineItem",
       ))
       private$limit <- limit
     },
-    setDefinition = function(itemDefinition) {
-      checkmate::assert_class(x = itemDefinition, classes = c("LineItem",
-                                                              "CohortDefinition",
-                                                              "ConceptSetDefinition",
-                                                              "AgeDefinition",
-                                                              "YearDefinition"))
-      private$definition <- definition
-    },
-    setItemDefinition = function(itemDefinition) {
-      checkmate::assert_class(x = itemDefinition, classes = c("LineItem"))
-      private$itemDefinition <- itemDefinition
-    },
-    setSql = function(sql) {
-      checkmate::assert_string(x = sql, na.ok = FALSE, null.ok = FALSE)
-      private$sql <- sql
-    },
-    getDomain = function() {
-      return(private$domain)
-    },
     getLimit = function() {
       return(private$limit)
+    },
+    setDefinition = function(definition) {
+      # checkmate::assert_class(x = definition,
+      #                         classes = .getAssertChoices(category = "DefinitionType"))
+
+
+      #categorical <- .getStatisticTypes(definitionType)
+
+      private$definition <- definition
     },
     getDefinition = function() {
       return(private$definition)
     },
+    setSql = function(sql) {
+      # here, we translate as a final step
+      checkmate::assert_string(x = sql, na.ok = FALSE, null.ok = FALSE)
+      private$sql <- SqlRender::translate(sql = sql,
+                                          targetDialect = private$tableShell$getExecutionSettings()$dbms,
+                                          tempEmulationSchema = private$tableShell$getExecutionSettings()$tempEmulationSchema)
+    },
     getSql = function() {
       return(private$sql)
+    },
+    setTimeWindows = function(timeWindows) {
+      checkmate::assert_class(x = timeWindows, classes = c("TimeWindows"))
+      private$timeWindows <- timeWindows
+    },
+    getTimeWindows = function() {
+      return(private$timeWindows)
     }
   ),
   private = list(
-    itemDefinition = NULL,
+    tableShell = NULL,
+    showMissing = NULL,
+    definition = NULL,
     sql = NULL,
     timeWindows = NULL,
     domain = NULL,
     limit = NULL,
-    definition = NULL
+    definition = NULL,
+    statisticType = NULL
   )
 )
 
@@ -157,13 +220,22 @@ GenderDefinition <- R6::R6Class("GenderDefinition",
   inherit = LineItem,
   public = list(
     initialize = function(genderConceptIds = c(8507, 8532)) {
-      #checkmate::assert_choice(x = genderConceptIds, choices = c(8507, 8532))
+      checkmate::assert_choice(x = genderConceptIds, choices = c(8507, 8532))
       super$setDomain(domain = "Gender")
-      sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "genderTemplate.sql",
-                                               packageName = pkgload::pkg_name(),
-                                               dbms = "sql server",
-                                               genderConceptIds = genderConceptIds)
-      super$setSql(sql = sql)
+      super$setStatisticType(statisticType = "Demographics")
+
+      caseSql <- .getCaseSql(covariateValues)
+
+      rawDataSql <- SqlRender::loadRenderTranslateSql(sqlFilename = "genderTemplate.sql",
+                                                      packageName = pkgload::pkg_name(),
+                                                      dbms = "sql server",
+                                                      genderConceptIds = genderConceptIds)
+      statSql <- SqlRender::loadRenderTranslateSql(sqlFilename = "categoricalTemplate.sql",
+                                                   packageName = pkgload::pkg_name(),
+                                                   dbms = "sql server",
+                                                   rawDataSql = rawDataSql,
+                                                   caseSql = caseSql)
+      super$setSql(sql = statSql)
     }
   )
 )
@@ -177,11 +249,17 @@ GenderDefinition <- R6::R6Class("GenderDefinition",
 AgeDefinition <- R6::R6Class("AgeDefinition",
   inherit = LineItem,
   public = list(
-    initialize = function(minAge,
-                          maxAge) {
-      checkmate::assert_number(x = minAge, na.ok = FALSE)
-      checkmate::assert_number(x = maxAge, na.ok = FALSE)
+    initialize = function(minAges,
+                          maxAges) {
+      #checkmate::assert_number(x = minAge, na.ok = FALSE)
+      #checkmate::assert_number(x = maxAge, na.ok = FALSE)
+
+      checkmate::check_array(x = minAges)
+      checkmate::check_array(x = maxAges)
+
       super$setDomain(domain = "Age")
+      super$setStatisticType(statisticType = "Demographics")
+
       sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "ageTemplate.sql",
                                                packageName = pkgload::pkg_name(),
                                                dbms = "sql server",
@@ -250,34 +328,30 @@ ConceptSetDefinition <- R6::R6Class("ConceptSetDefinition", list(
 #' An R6 class to define a CohortDefinition
 #'
 #' @export
-CohortDefinition <- R6::R6Class("CohortDefinition", list(
-  inherit = LineItem,
-  covariateCohortId = NA,
+CohortDefinition <- R6::R6Class("CohortDefinition",
+  public = list(
+    covariateCohortId = NA,
+    initialize = function(covariateCohortId,
+                          executionSettings) {
+      dateFilterSql <- ""
 
+      sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "cohortTemplate.sql",
+                                               packageName = pkgload::pkg_name(),
+                                               dbms = executionSettings$dbms,
+                                               #targetCohortIds = super$targetCohortIds,
+                                               #workDatabaseSchema = super$executionSettings$workDatabaseSchema,
+                                               covariateCohortId = covariateCohortId,
+                                               covariateDatabaseSchema = super$executionSettings$covariateDatabaseSchema,
+                                               covariateCohortTable = super$executionSettings$covariateCohortTable,
+                                               dateFilterSql = dateFilterSql)
 
-  initialize = function(cohortId) {
-
-    covariateValueSql <- "count(distinct TARGET.subject_id)"
-    if (super$limit == "All") {
-      covariateValueSql <- "count(TARGET.subject_id)"
+      super$sql <- ""
     }
+  ),
+  private = list(
 
-    dateFilterSql <- ""
-
-    sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "cohortTemplate.sql",
-                                                  packageName = pkgload::pkg_name(),
-                                                  dbms = super$executionSettings$dbms,
-                                                  targetCohortIds = super$targetCohortIds,
-                                                  workDatabaseSchema = super$executionSettings$workDatabaseSchema,
-                                                  covariateCohortId = covariateCohortId,
-                                                  covariateDatabaseSchema = super$executionSettings$covariateDatabaseSchema,
-                                                  covariateCohortTable = super$executionSettings$covariateCohortTable,
-                                                  dateFilterSql = dateFilterSql)
-
-    super$sql <- ""
-  }
-))
-
+  )
+)
 
 
 # RaceEthnicityDefinition ------
@@ -337,8 +411,23 @@ ExecutionSettings <- R6::R6Class("ExecutionSettings", list(
   covariateCohortTable = NULL,
   dbms = NULL,
   database = NULL,
-  initialize = function() {
-    # should we connect?
+  initialize = function(cdmDatabaseSchema = NULL,
+                        workDatabaseSchema = NULL,
+                        tempEmulationSchema = NULL,
+                        targetCohortTable = NULL,
+                        covariateDatabaseSchema = NULL,
+                        covariateCohortTable = NULL,
+                        dbms = NULL,
+                        database = NULL) {
+
+    checkmate::assert_string(x = cdmDatabaseSchema, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
+    checkmate::assert_string(x = workDatabaseSchema, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
+    checkmate::assert_string(x = tempEmulationSchema, na.ok = TRUE, null.ok = TRUE)
+    checkmate::assert_string(x = targetCohortTable, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
+    checkmate::assert_string(x = covariateDatabaseSchema, na.ok = TRUE, null.ok = TRUE)
+    checkmate::assert_string(x = covariateCohortTable, na.ok = TRUE, null.ok = TRUE)
+    checkmate::assert_string(x = dbms, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
+    checkmate::assert_string(x = dbms, na.ok = TRUE, null.ok = TRUE)
   }
 ))
 
