@@ -10,44 +10,42 @@ TableShell <- R6::R6Class("TableShell",
   public = list(
     setTitle = function(title) {
       .setString(private = private, key = "title", value = title)
+      invisible (self)
     },
     getTitle = function() {
-      thisTitle <- .get(private, "title")
-      return (thisTitle)
+      return (private$title)
     },
-    setTargetCohorts = function(targetCohorts) {
-      checkmate::assert_list(x = targetCohorts, types = c("TargetCohort"), min.len = 1)
-      private$targetCohorts <- targetCohorts
-      invisible (private)
+    addTargetCohorts = function(targetCohorts) {
+      checkmate::assert_list(x = targetCohorts, classes = c("TargetCohort"), null.ok = FALSE, min.len = 1)
+      private$targetCohorts <- c(private$targetCohorts, targetCohorts)
+      invisible (self)
     },
+    # TODO - addTargetCohortsFromCsv?
     getTargetCohorts = function() {
-      theseTargetCohorts <- private$targetCohorts
-      return (theseTargetCohorts)
+      return (private$targetCohorts)
     },
-    setSections = function(sections) {
-      checkmate::assert_list(x = sections, types = c("Section"), min.len = 1)
-      private$sections <- sections
-      invisible (private)
+    addSections = function(sections) {
+      checkmate::assert_list(x = sections, classes = c("Section"), null.ok = FALSE, min.len = 1)
+      private$sections <- c(private$sections, sections)
+      invisible (self)
     },
     getSections = function() {
-      theseSections <- private$sections
-      return (theseSections)
+      return (private$sections)
     },
     setExectionSettings = function(executionSettings) {
-      checkmate::assert_class(x = executionSettings, classes = c("ExecutionSettings"), null.ok = FALSE)
+      checkmate::assert_class(x = executionSettings, class = "ExecutionSettings", null.ok = FALSE)
       private$executionSettings <- executionSettings
-      invisible (private)
+      invisible (self)
     },
     getExecutionSettings = function() {
-      theseExecutionSettings <- private$executionSettings
-      return (theseExecutionSettings)
+      return (private$executionSettings)
     }
   ),
   private = list(
     title = NULL,
-    sections = NULL,
+    sections = c(),
     executionSettings = NULL,
-    targetCohorts = NULL
+    targetCohorts = c()
   )
 )
 
@@ -62,19 +60,17 @@ TargetCohort <- R6::R6Class("TargetCohort",
      setId = function(id) {
        checkmate::assert_number(x = id, na.ok = FALSE, null.ok = FALSE)
        private$id <- id
-       invisible(private)
+       invisible (self)
      },
      getId = function(id) {
-       thisId <- private$id
-       return (thisId)
+       return (private$id)
      },
      setName = function(name) {
        private$name <- name
-       invisible(private)
+       invisible (self)
      },
      getName = function(name) {
-       thisName <- private$name
-       return (thisName)
+       return (private$name)
      }
    ),
    private = list(
@@ -93,34 +89,32 @@ Section <- R6::R6Class("Section",
   public = list(
     setTitle = function(title) {
       .setString(private = private, key = "title", value = title)
+      invisible (self)
     },
     getTitle = function() {
-      thisTitle <- private$title
-      return (thisTitle)
+      return (private$title)
     },
     setOrdinal = function(ordinal) {
-      checkmate::assert_number(x = sectionOrdinal, na.ok = TRUE, null.ok = TRUE)
+      checkmate::assert_number(x = ordinal, na.ok = TRUE, null.ok = TRUE)
       private$ordinal <- ordinal
-      invisible (private)
+      invisible (self)
     },
     getOrdinal = function() {
-      thisOrdinal <- private$ordinal
-      return (thisOrdinal)
+      return (private$ordinal)
     },
     setLineItems = function(lineItems) {
       checkmate::assert_list(x = lineItems, types = c("LineItem"), min.len = 1)
       private$lineItems <- lineItems
-      invisible (private)
+      invisible (self)
     },
     getLineItems = function() {
-      theseLineItems <- private$lineItems
-      return (theseLineItems)
+      return (private$lineItems)
     }
   ),
   private = list(
     title = NULL,
     ordinal = NA,
-    lineItems = NULL
+    lineItems = c()
   )
 )
 

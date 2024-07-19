@@ -42,6 +42,6 @@
   invisible(private)
 }
 
-.get <- function(private, object) {
-  return(private[[object]])
+.get <- function(private, key) {
+  return(private[[key]])
 }
