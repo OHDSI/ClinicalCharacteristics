@@ -39,6 +39,7 @@
 .setString <- function(private, key, value) {
   checkmate::assert_string(x = value, na.ok = FALSE, min.chars = 1, null.ok = FALSE)
   private[[key]] <- value
+  invisible(private)
 }
 
 .get <- function(private, object) {
