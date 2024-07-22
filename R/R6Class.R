@@ -1,5 +1,3 @@
-
-
 # TableShell -----
 
 #' @description
@@ -10,35 +8,32 @@ TableShell <- R6::R6Class("TableShell",
   public = list(
     setTitle = function(title) {
       .setString(private = private, key = "title", value = title)
-      invisible (self)
+      invisible(self)
     },
     getTitle = function() {
-      return (private$title)
+      return(private$title)
     },
     addTargetCohorts = function(targetCohorts) {
-      checkmate::assert_list(x = targetCohorts, classes = c("TargetCohort"), null.ok = FALSE, min.len = 1)
-      private$targetCohorts <- c(private$targetCohorts, targetCohorts)
-      invisible (self)
+      .setListofClasses(private = private, key = "targetCohorts", value = targetCohorts, classes = c("TargetCohort"))
+      invisible(self)
     },
-    # TODO - addTargetCohortsFromCsv?
+    # TODO - addTargetCohortsFromCsv, addTargetCohortsFromDf
     getTargetCohorts = function() {
-      return (private$targetCohorts)
+      return(private$targetCohorts)
     },
     addSections = function(sections) {
-      checkmate::assert_list(x = sections, classes = c("Section"), null.ok = FALSE, min.len = 1)
-      private$sections <- c(private$sections, sections)
-      invisible (self)
+      .setListofClasses(private = private, key = "sections", value = sections, classes = c("Section"))
+      invisible(self)
     },
     getSections = function() {
-      return (private$sections)
+      return(private$sections)
     },
     setExectionSettings = function(executionSettings) {
-      checkmate::assert_class(x = executionSettings, class = "ExecutionSettings", null.ok = FALSE)
-      private$executionSettings <- executionSettings
-      invisible (self)
+      .setClass(private = private, key = "executionSettings", value = executionSettings, class = "ExecutionSettings")
+      invisible(self)
     },
     getExecutionSettings = function() {
-      return (private$executionSettings)
+      return(private$executionSettings)
     }
   ),
   private = list(
@@ -56,27 +51,26 @@ TableShell <- R6::R6Class("TableShell",
 #'
 #' @export
 TargetCohort <- R6::R6Class("TargetCohort",
-   public = list(
-     setId = function(id) {
-       checkmate::assert_number(x = id, na.ok = FALSE, null.ok = FALSE)
-       private$id <- id
-       invisible (self)
-     },
-     getId = function(id) {
-       return (private$id)
-     },
-     setName = function(name) {
-       private$name <- name
-       invisible (self)
-     },
-     getName = function(name) {
-       return (private$name)
-     }
-   ),
-   private = list(
-     id = NULL,
-     name = NULL
-   )
+  public = list(
+    setId = function(id) {
+      .setNumber(private = private, key = "id", value = id)
+      invisible(self)
+    },
+    getId = function(id) {
+      return(private$id)
+    },
+    setName = function(name) {
+      .setString(private = private, key = "name", value = name)
+      invisible(self)
+    },
+    getName = function(name) {
+      return(private$name)
+    }
+  ),
+  private = list(
+    id = NULL,
+    name = NULL
+  )
 )
 
 # Section ------
@@ -89,26 +83,24 @@ Section <- R6::R6Class("Section",
   public = list(
     setTitle = function(title) {
       .setString(private = private, key = "title", value = title)
-      invisible (self)
+      invisible(self)
     },
     getTitle = function() {
-      return (private$title)
+      return(private$title)
     },
     setOrdinal = function(ordinal) {
-      checkmate::assert_number(x = ordinal, na.ok = TRUE, null.ok = TRUE)
-      private$ordinal <- ordinal
-      invisible (self)
+      .setNumber(private = private, key = "ordinal", value = ordinal)
+      invisible(self)
     },
     getOrdinal = function() {
-      return (private$ordinal)
+      return(private$ordinal)
     },
     setLineItems = function(lineItems) {
-      checkmate::assert_list(x = lineItems, types = c("LineItem"), min.len = 1)
-      private$lineItems <- lineItems
-      invisible (self)
+      .setListofClasses(private = private, key = "lineItems", value = lineItems, classes = c("LineItem"))
+      invisible(self)
     },
     getLineItems = function() {
-      return (private$lineItems)
+      return(private$lineItems)
     }
   ),
   private = list(
@@ -127,42 +119,39 @@ Section <- R6::R6Class("Section",
 #' @export
 LineItem <- R6::R6Class("LineItem",
   public = list(
-
-    setOrdinal <- function(ordinal) {
-      checkmate::assert_number(x = ordinal, na.ok = TRUE, null.ok = TRUE)
+    setOrdinal = function(ordinal) {
+      .setNumber(private = private, key = "ordinal", value = ordinal)
+      invisible(self)
     },
-    getOrdinal <- function() {
-
+    getOrdinal = function() {
+      return(private$ordinal)
     },
-    setLabelCategory <- function(labelCategory) {
-      checkmate::assert_number(x = labelCategory, na.ok = TRUE, null.ok = TRUE)
+    setLabelCategory = function(labelCategory) {
+      .setNumber(private = private, key = "labelCategory", value = labelCategory)
+      invisible(self)
     },
-    getLabelCategory <- function() {
-      thisLabelCategory <- private$labelCategory
-      return (thisLabelCategory)
+    getLabelCategory = function() {
+      return(private$labelCategory)
     },
-
-    checkmate::assert_string(x = itemLabel, null.ok = FALSE)
-
+    setLabel = function(label) {
+      .setString(private = private, key = "label", value = label)
+      invisible(self)
+    },
     setShowMissing = function(showMissing) {
-      checkmate::assert_logical(x = showMissing, null.ok = FALSE, len = 1, any.missing = FALSE, all.missing = FALSE)
-      private$showMissing <- showMissing
-      invisible (private)
+      .setLogical(private = private, key = "showMissing", value = showMissing)
+      invisible(self)
     },
     getShowMissing = function() {
-      thisShowMissing <- private$showMissing
-      return (thisShowMissing)
+      return(private$showMissing)
     },
-    setStatType = function(statisticType) {
-      checkmate::assert_choice(x = statisticType,
-                               choices = .getAssertChoices(category = "StatisticType"))
-      private$statisticType <- statisticType
-      invisible (private)
+    setStatisticType = function(statisticType) {
+      .setChoice(private = private, key = "statisticType", value = statisticType, choices = .getAssertChoices(category = "StatisticType"))
+      invisible(self)
     },
     getStatisticType = function() {
-      thisStatType <- private$statType
-      return (thisStatType)
+      return(private$statisticType)
     },
+    # TODO decide if we want to allow setting of domain or always look across all domains (the latter feels inefficient...)
     # setDomain = function(domain) {
     #   checkmate::assert_choice(x = domain,
     #                            choices = .getAssertChoices(category = "Domain"))
@@ -172,28 +161,24 @@ LineItem <- R6::R6Class("LineItem",
     #   return(private$domain)
     # },
     setLimit = function(limit) {
-      checkmate::assert_choice(x = limit, choices = c(
-        .getAssertChoices(category = "Limit")
-      ))
-      private$limit <- limit
-      invisible (private)
+      .setChoice(private = private, key = "limit", value = limit, choices = .getAssertChoices(category = "Limit"))
+      invisible(self)
     },
     getLimit = function() {
-      thisLimit <- private$limit
-      return (thisLimit)
+      return(private$limit)
     },
-    setDefinition = function(definition) {
-      # checkmate::assert_class(x = definition,
-      #                         classes = .getAssertChoices(category = "DefinitionType"))
+    # setDefinition = function(definition) {
+    #   checkmate::assert_class(x = definition,
+    #                           classes = .getAssertChoices(category = "DefinitionType"))
 
 
-      #categorical <- .getStatisticTypes(definitionType)
+    #   categorical <- .getStatisticTypes(definitionType)
 
-      private$definition <- definition
-    },
-    getDefinition = function() {
-      return(private$definition)
-    },
+    #   private$definition <- definition
+    # },
+    # getDefinition = function() {
+    #   return(private$definition)
+    # },
     # setSql = function(sql) {
     #   # here, we translate as a final step
     #   checkmate::assert_string(x = sql, na.ok = FALSE, null.ok = FALSE)
@@ -205,8 +190,8 @@ LineItem <- R6::R6Class("LineItem",
     #   return(private$sql)
     # },
     setTimeWindows = function(timeWindows) {
-      checkmate::assert_class(x = timeWindows, classes = c("TimeWindows"))
-      private$timeWindows <- timeWindows
+      .setClass(private = private, key = "timeWindows", value = timeWindows, class = "TimeWindows")
+      return(self)
     },
     getTimeWindows = function() {
       return(private$timeWindows)
@@ -217,15 +202,67 @@ LineItem <- R6::R6Class("LineItem",
     labelCategory = NULL,
     label = NULL,
     showMissing = NULL,
-    definition = NULL,
-    sql = NULL,
-    timeWindows = NULL,
-    domain = NULL,
+    statisticType = NULL,
+    #domain = NULL,
+    #definition = NULL,
+    #sql = NULL,
     limit = NULL,
     definition = NULL,
-    statisticType = NULL
+    timeWindows = NULL
   )
 )
+
+# ExecutionSettings ----
+
+#' @description
+#' An R6 class to define an ExecutionSettings object
+#'
+#' @export
+ExecutionSettings <- R6::R6Class("ExecutionSettings", 
+  public = list(
+    connectionDetails = NULL,
+    connection = NULL,
+    cdmDatabaseSchema = NULL,
+    workDatabaseSchema = NULL,
+    tempEmulationSchema = NULL,
+    targetCohortTable = NULL,
+    cdmSourceName = NULL,
+    numThreads = NULL, # Maybe
+    initialize = function(connectionDetails = NULL,
+                          connection = NULL,
+                          cdmDatabaseSchema = NULL,
+                          workDatabaseSchema = NULL,
+                          tempEmulationSchema = NULL,
+                          targetCohortTable = NULL,
+                          cdmSourceName = NULL,
+                          numThreads = NULL) {
+      stopifnot(is.null(connectionDetails) || is.null(connection))
+      checkmate::assert_string(x = connectionDetails, na.ok = TRUE, null.ok = TRUE)
+      checkmate::assert_string(x = connection, na.ok = TRUE, null.ok = TRUE)
+      checkmate::assert_string(x = cdmDatabaseSchema, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
+      checkmate::assert_string(x = workDatabaseSchema, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
+      checkmate::assert_string(x = tempEmulationSchema, na.ok = TRUE, null.ok = TRUE)
+      checkmate::assert_string(x = targetCohortTable, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
+      checkmate::assert_string(x = cdmSourceName, na.ok = TRUE, null.ok = TRUE)
+      checkmate::assert_number(x = numThreads, na.ok = TRUE, null.ok = TRUE)
+
+      if (!is.null(connection)) {
+        self$connection <- connection
+        self$numThreads <- 1
+      } else {
+        self$connectionDetails <- connectionDetails
+        self$numThreads <- numThreads
+      }
+
+      self$cdmDatabaseSchema <- cdmDatabaseSchema
+      self$workDatabaseSchema <- workDatabaseSchema
+      self$tempEmulationSchema <- tempEmulationSchema
+      self$targetCohortTable <- targetCohortTable
+      self$cdmSourceName <- cdmSourceName
+    }
+  )
+)
+
 
 # GenderDefinition -----
 
@@ -413,49 +450,6 @@ UnitConversion <- R6::R6Class("UnitConversion", list(
   multiplierToOriginal = NA
 ))
 
-
-# ExecutionSettings ----
-
-#' @description
-#' An R6 class to handle the ...
-#'
-#' @export
-ExecutionSettings <- R6::R6Class("ExecutionSettings", list(
-  connectionDetails = NULL,
-  connection = NULL,
-  cdmDatabaseSchema = NULL,
-  workDatabaseSchema = NULL,
-  tempEmulationSchema = NULL,
-  targetCohortTable = NULL,
-  cdmSourceName = NULL,
-  numThreads = NULL, # Maybe
-
-  initialize = function(connection = NULL,
-                        connectionDetails = NULL,
-                        cdmDatabaseSchema = NULL,
-                        workDatabaseSchema = NULL,
-                        tempEmulationSchema = NULL,
-                        targetCohortTable = NULL,
-                        cdmSourceName = NULL,
-                        numThreads = NULL) {
-
-    # TODO: resolve these checkmates to fit our new parameter structure
-
-    # if connection is not null, then numThreads = 1
-    # else numThreads = whatever the user stated
-
-    checkmate::assert_string(x = cdmDatabaseSchema, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
-    checkmate::assert_string(x = workDatabaseSchema, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
-    checkmate::assert_string(x = tempEmulationSchema, na.ok = TRUE, null.ok = TRUE)
-    checkmate::assert_string(x = targetCohortTable, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
-
-
-
-    checkmate::assert_string(x = dbms, na.ok = FALSE, null.ok = FALSE, min.chars = 1)
-    checkmate::assert_string(x = dbms, na.ok = TRUE, null.ok = TRUE)
-  }
-))
-
 # BreaksStrategy ----
 
 #' @description
@@ -471,3 +465,4 @@ BreaksStrategy <- R6::R6Class("BreaksStrategy", list(
     self$breaks <- breaks
   }
 ))
+
