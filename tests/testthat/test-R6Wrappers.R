@@ -31,12 +31,19 @@ test_that("addTargetCohortsFromDf adds target cohorts from a data frame", {
 #   expect_true(all(sapply(tableShell$getTargetCohorts(), inherits, "TargetCohort")))
 # })
 
-test_that("addSections adds one or more sections to a TableShell object", {
+test_that("addSections adds 2 sections to a TableShell object", {
   tableShell <- createTableShell("Test TableShell")
   section1 <- Section$new()
   section2 <- Section$new()
   tableShell <- addSections(tableShell, section1, section2)
   expect_equal(tableShell$getSections(), list(section1, section2))
+})
+
+test_that("addSections adds 1 section to a TableShell object", {
+  tableShell <- createTableShell("Test TableShell")
+  section1 <- Section$new()
+  tableShell <- addSections(tableShell, section1)
+  expect_equal(tableShell$getSections(), list(section1))
 })
 
 test_that("setExecutionSettings sets the ExecutionSettings of a TableShell object", {
