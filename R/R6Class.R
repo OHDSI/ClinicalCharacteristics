@@ -11,36 +11,39 @@ TableShell <- R6::R6Class("TableShell",
       invisible(self)
     },
     getTitle = function() {
-      return(private$title)
+      tsTitle <- private$title
+      return(tsTitle)
     },
-    addTargetCohorts = function(targetCohorts) {
+    setTargetCohorts = function(targetCohorts) {
       .setListofClasses(private = private, key = "targetCohorts", value = targetCohorts, classes = c("TargetCohort"))
       invisible(self)
     },
-    # TODO - addTargetCohortsFromCsv, addTargetCohortsFromDf
     getTargetCohorts = function() {
-      return(private$targetCohorts)
+      tsTargetCohorts <- private$targetCohorts
+      return(tsTargetCohorts)
     },
-    addSections = function(sections) {
+    setSections = function(sections) {
       .setListofClasses(private = private, key = "sections", value = sections, classes = c("Section"))
       invisible(self)
     },
     getSections = function() {
-      return(private$sections)
+      tsSections <- private$sections
+      return(tsSections)
     },
-    setExectionSettings = function(executionSettings) {
+    setExecutionSettings = function(executionSettings) {
       .setClass(private = private, key = "executionSettings", value = executionSettings, class = "ExecutionSettings")
       invisible(self)
     },
     getExecutionSettings = function() {
-      return(private$executionSettings)
+      tsExecutionSettings <- private$executionSettings
+      return(tsExecutionSettings)
     }
   ),
   private = list(
     title = NULL,
-    sections = c(),
+    sections = NULL,
     executionSettings = NULL,
-    targetCohorts = c()
+    targetCohorts = NULL
   )
 )
 
@@ -56,15 +59,17 @@ TargetCohort <- R6::R6Class("TargetCohort",
       .setNumber(private = private, key = "id", value = id)
       invisible(self)
     },
-    getId = function(id) {
-      return(private$id)
+    getId = function() {
+      tcId <- private$id
+      return(tcId)
     },
     setName = function(name) {
       .setString(private = private, key = "name", value = name)
       invisible(self)
     },
     getName = function(name) {
-      return(private$name)
+      tcName <- private$name
+      return(tcName)
     }
   ),
   private = list(
@@ -86,27 +91,30 @@ Section <- R6::R6Class("Section",
       invisible(self)
     },
     getTitle = function() {
-      return(private$title)
+      sectionTitle <- private$title
+      return(sectionTitle)
     },
     setOrdinal = function(ordinal) {
       .setNumber(private = private, key = "ordinal", value = ordinal)
       invisible(self)
     },
     getOrdinal = function() {
-      return(private$ordinal)
+      sectionOrdinal <- private$ordinal
+      return(sectionOrdinal)
     },
     setLineItems = function(lineItems) {
       .setListofClasses(private = private, key = "lineItems", value = lineItems, classes = c("LineItem"))
       invisible(self)
     },
     getLineItems = function() {
-      return(private$lineItems)
+      sectionLineItems <- private$lineItems
+      return(sectionLineItems)
     }
   ),
   private = list(
     title = NULL,
     ordinal = NA,
-    lineItems = c()
+    lineItems = NULL
   )
 )
 
@@ -124,32 +132,32 @@ LineItem <- R6::R6Class("LineItem",
       invisible(self)
     },
     getOrdinal = function() {
-      return(private$ordinal)
-    },
-    setLabelCategory = function(labelCategory) {
-      .setNumber(private = private, key = "labelCategory", value = labelCategory)
-      invisible(self)
-    },
-    getLabelCategory = function() {
-      return(private$labelCategory)
+      liOrdinal <- private$ordinal
+      return(liOrdinal)
     },
     setLabel = function(label) {
       .setString(private = private, key = "label", value = label)
       invisible(self)
+    },
+    getLabel = function() {
+      liLabel <- private$label
+      return(liLabel)
     },
     setShowMissing = function(showMissing) {
       .setLogical(private = private, key = "showMissing", value = showMissing)
       invisible(self)
     },
     getShowMissing = function() {
-      return(private$showMissing)
+      liShowMissing <- private$showMissing
+      return(liShowMissing)
     },
     setStatisticType = function(statisticType) {
       .setChoice(private = private, key = "statisticType", value = statisticType, choices = .getAssertChoices(category = "StatisticType"))
       invisible(self)
     },
     getStatisticType = function() {
-      return(private$statisticType)
+      liStatType <- private$statisticType
+      return(liStatType)
     },
     # TODO decide if we want to allow setting of domain or always look across all domains (the latter feels inefficient...)
     # setDomain = function(domain) {
@@ -165,8 +173,9 @@ LineItem <- R6::R6Class("LineItem",
       invisible(self)
     },
     getLimit = function() {
-      return(private$limit)
-    },
+      liLimit <- private$limit
+      return(liLimit)
+    }#,
     # setDefinition = function(definition) {
     #   checkmate::assert_class(x = definition,
     #                           classes = .getAssertChoices(category = "DefinitionType"))
@@ -189,17 +198,17 @@ LineItem <- R6::R6Class("LineItem",
     # getSql = function() {
     #   return(private$sql)
     # },
-    setTimeWindows = function(timeWindows) {
-      .setClass(private = private, key = "timeWindows", value = timeWindows, class = "TimeWindows")
-      return(self)
-    },
-    getTimeWindows = function() {
-      return(private$timeWindows)
-    }
+    # setTimeWindows = function(timeWindows) {
+    #   .setClass(private = private, key = "timeWindows", value = timeWindows, class = "TimeWindows")
+    #   return(self)
+    # },
+    # getTimeWindows = function() {
+    #   liTimeWindows <- private$timeWindows
+    #   return(liTimeWindows)
+    # }
   ),
   private = list(
     ordinal = NA,
-    labelCategory = NULL,
     label = NULL,
     showMissing = NULL,
     statisticType = NULL,
@@ -207,8 +216,8 @@ LineItem <- R6::R6Class("LineItem",
     #definition = NULL,
     #sql = NULL,
     limit = NULL,
-    definition = NULL,
-    timeWindows = NULL
+    definition = NULL#,
+    #timeWindows = NULL
   )
 )
 
@@ -218,7 +227,7 @@ LineItem <- R6::R6Class("LineItem",
 #' An R6 class to define an ExecutionSettings object
 #'
 #' @export
-ExecutionSettings <- R6::R6Class("ExecutionSettings", 
+ExecutionSettings <- R6::R6Class("ExecutionSettings",
   public = list(
     connectionDetails = NULL,
     connection = NULL,

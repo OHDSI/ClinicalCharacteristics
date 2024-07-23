@@ -43,13 +43,13 @@
 }
 
 .setNumber <- function(private, key, value) {
-  checkmate::assert_numeric(x = value, na.ok = FALSE, null.ok = FALSE)
+  checkmate::assert_numeric(x = value, null.ok = FALSE)
   private[[key]] <- value
   invisible(private)
 }
 
 .setLogical <- function(private, key, value) {
-  checkmate::assert_logical(x = value, na.ok = FALSE, null.ok = FALSE)
+  checkmate::assert_logical(x = value, null.ok = FALSE)
   private[[key]] <- value
   invisible(private)
 }
@@ -62,7 +62,7 @@
 
 .setListofClasses <- function(private, key, value, classes) {
   checkmate::assert_list(x = value, types = classes, null.ok = FALSE, min.len = 1)
-  private[[key]] <- c(private[[key]], value)
+  private[[key]] <- value
   invisible(private)
 }
 
@@ -70,8 +70,4 @@
   checkmate::assert_choice(x = value, choices = choices, null.ok = FALSE)
   private[[key]] <- value
   invisible(private)
-}
-
-.get <- function(private, key) {
-  return(private[[key]])
 }
