@@ -2,21 +2,21 @@
 #' Create an empty TableShell object and set its title
 #'
 #' @param title The title of the TableShell
-#' @param sections A list of Section objects
 #' @param targetCohorts A list of TargetCohort objects
 #' @param executionSettings An ExecutionSettings object
+#' @param sections A list of Section objects
 #'
 #' @return A TableShell object
 #'
 #' @export
 createTableShell <- function(name,
-                            sections,
                             targetCohorts,
-                            executionSettings) {
+                            executionSettings,
+                            sections) {
     tableShell <- TableShell$new(name = name,
-                                 sections = sections,
                                  targetCohorts = targetCohorts,
-                                 executionSettings = executionSettings)
+                                 executionSettings = executionSettings,
+                                 sections = sections,)
     return(tableShell)
 }
 
@@ -83,6 +83,38 @@ createExecutionSettings <- function(connectionDetails,
 }
 
 #' @title
+#' Create a single time interval
+#' @param lb the left bound of the time interval
+#' @param rb the right bound of the time interval
+#'
+#' @return A time interval object
+#'
+#' @export
+timeInterval <- function(lb, rb) {
+  ti <- TimeInterval$new(lb = lb, rb = rb)
+  return(ti)
+}
+
+#' @title
+#' Create a Time Window object
+#' @param ... a list of timeInterval objects
+#'
+#' @return A time window object
+#'
+#' @export
+createTimeWindows <- function(...) {
+  windows <- list(...)
+  tw <- TimeWindow$new(windows = windows)
+  return(tw)
+}
+
+
+createPresence <- function(operator = "at_least", occurrences = 1) {
+  pres <- Presence$new(operator = operator, occurrences = occurrences)
+  return(pres)
+}
+
+#' @title
 #' Create a Section object and set its attributes
 #' @param title The title of the Section
 #' @param ordinal The ordinal of the Section
@@ -102,8 +134,9 @@ createSection <- function(name, ordinal, lineItems) {
 #' @param name (OPTIONAL) The name of the line item (if not provided, the name will be set to the Capr concept set name)
 #' @param ordinal The ordinal of the line item within a section
 #' @param statistic The Statistic object to be used to evaluate the line item
-#' @param conceptSet The Capr concept set object
 #' @param domain The domain of the concept set (must be one of 'Condition', 'Drug', 'Procedure', 'Observation', 'Measurement', 'Device')
+#' @param conceptSet The Capr concept set object
+#' @param timeInterval The Time Interval object used for the line item
 #' @param sourceConceptSet (OPTIONAL) A Capr concept set of source concept IDs to use to limit the concept set
 #' @param typeConceptIds (OPTIONAL) A list of type concept IDs to use to limit the concept set
 #' @param visitOccurrenceConceptIds (OPTIONAL) A list of visit occurrence concept IDs to use to limit the concept set
@@ -114,58 +147,146 @@ createSection <- function(name, ordinal, lineItems) {
 createConceptSetLineItem <- function(name,
                                      ordinal,
                                      statistic,
-                                     conceptSet,
                                      domain,
+                                     conceptSet,
+                                     timeInterval,
                                      sourceConceptSet = NULL,
                                      typeConceptIds = c(),
                                      visitOccurrenceConceptIds = c()) {
-  csDefinition <- ConceptSetDefinition$new(name, 
-                                           ordinal,
-                                           statistic,
-                                           conceptSet,
-                                           domain,
+  csDefinition <- ConceptSetDefinition$new(name = name,
+                                           ordinal = ordinal,
+                                           statistic = statistic,
+                                           domain = domain,
+                                           conceptSet = conceptSet,
+                                           timeInterval = timeInterval,
                                            sourceConceptSet = sourceConceptSet,
                                            typeConceptIds = typeConceptIds,
                                            visitOccurrenceConceptIds = visitOccurrenceConceptIds)
   return(csDefinition)
 }
 
+# function to get timeInterval and concept set combinations
+.permuteCsTi <- function(conceptSets, timeIntervals) {
+
+  # get number of items for each
+  numCs <- length(conceptSets)
+  numTis <- length(timeIntervals)
+
+  # build out permutations
+  csPerm <- rep(conceptSets, times = numTis)
+  tiPerm <- rep(timeIntervals, each = numCs)
+
+  permTiCs <- list(
+    'conceptSets' = csPerm,
+    'timeIntervals' = tiPerm
+  )
+  return(permTiCs)
+
+}
+
 #' @title
-#' Create a batch of concept set line items from a list of Capr concept sets. 
-#' 
-#' @description 
-#' The name of each line item will be set to the name of its Capr concept set, and the ordinal will be set to the index of the Capr concept set in the list. All line items will use the same statistic, domain, type concepts, and visit concepts. It is not possible to specify source concept IDs.
+#' Create a batch of concept set line items from a list of Capr concept sets.
 #'
+#' @description
+#' The name of each line item will be set to the name of its Capr concept set, and the ordinal will be set to the index of the Capr concept set in the list. All line items will use the same statistic, domain, type concepts, and visit concepts. It is not possible to specify source concept IDs.
+#' @param name The name of the concept set batch
 #' @param statistic The Statistic object to be used to evaluate the line items
-#' @param conceptSets A list of concept set Capr objects
 #' @param domain The domain of the concept sets (must be one of 'Condition', 'Drug', 'Procedure', 'Observation', 'Measurement', 'Device')
+#' @param conceptSets A list of concept set Capr objects
+#' @param timeIntervals A list of TimeInterval class objects
+#' @param sourceConceptSet (OPTIONAL) A Capr concept set of source concept IDs to use to limit the concept set
 #' @param typeConceptIds (OPTIONAL) A list of type concept IDs to use to limit the concept set
 #' @param visitOccurrenceConceptIds (OPTIONAL) A list of visit occurrence concept IDs to use to limit the concept set
 #'
 #' @return A list of ConceptSetDefinition objects
 #'
 #' @export
-createConceptSetLineItemBatch <- function(statistic,
-                                          conceptSets,
-                                          domain,
-                                          typeConceptIds = c(),
-                                          visitOccurrenceConceptIds = c()) {
-  checkmate::assert_list(x = conceptSets, types = c("ConceptSet"), null.ok = FALSE, min.len = 1)
+createConceptSetLineItemBatch <- function(
+    name,
+    statistic,
+    domain,
+    conceptSets,
+    timeIntervals,
+    sourceConceptSet = NULL,
+    typeConceptIds = c(),
+    visitOccurrenceConceptIds = c()) {
 
-  csDefs <- list()
-  n <- 0
-  for (cs in conceptSets) {
-    n <- n + 1
-    csDefinition <- ConceptSetDefinition$new(name = cs@Name, 
-                                             ordinal = n,
-                                             statistic = statistic,
-                                             conceptSet = cs,
-                                             domain = domain,
-                                             typeConceptIds = typeConceptIds,
-                                             visitOccurrenceConceptIds = visitOccurrenceConceptIds)
-    csDefs <- append(csDefs, list(csDefinition))
-  }
-  return(csDefs)
+  checkmate::assert_list(x = conceptSets, types = c("ConceptSet"), null.ok = FALSE, min.len = 1)
+  checkmate::assert_list(x = timeIntervals, types = c("TimeInterval"), null.ok = FALSE, min.len = 1)
+
+  # build permutations of concepts and timeIntervals
+  permDf <- .permuteCsTi(conceptSets, timeIntervals)
+
+  # create batch of concept set line items
+  csLiBatch <- purrr::map2(
+    permDf$conceptSets,
+    permDf$timeIntervals,
+    ~createConceptSetLineItem(
+      name = name,
+      ordinal = NA_integer_,
+      statistic = statistic,
+      domain = domain,
+      conceptSet = .x,
+      timeInterval = .y,
+      sourceConceptSet = sourceConceptSet,
+      typeConceptIds = typeConceptIds,
+      visitOccurrenceConceptIds = visitOccurrenceConceptIds
+    )
+  ) |>
+    unname()
+
+  return(csLiBatch)
+}
+
+
+createGenderLineItem <- function(ordinal) {
+
+  gender <- DemographicDefinition$new(
+    name = "Gender",
+    ordinal = ordnial,
+    statistic = DemoConcept$new(conceptColumn = "gender_concept_id")
+  )
+
+  return(gender)
+
+}
+
+
+createRaceLineItem <- function(ordinal) {
+
+  gender <- DemographicDefinition$new(
+    name = "Race",
+    ordinal = ordnial,
+    statistic = DemoConcept$new(conceptColumn = "race_concept_id")
+  )
+
+  return(gender)
+
+}
+
+createEthnicityLineItem <- function(ordinal) {
+
+  gender <- DemographicDefinition$new(
+    name = "Ethnicity",
+    ordinal = ordnial,
+    statistic = DemoConcept$new(conceptColumn = "ethnicity_concept_id")
+  )
+
+  return(gender)
+
+}
+
+
+createAgeLineItem <- function(ordinal, breaks = NULL) {
+
+  age <- DemographicDefinition$new(
+    name = "Age",
+    ordinal = ordinal,
+    statistic = Age$new(breaks = breaks)
+  )
+
+  return(age)
+
 }
 
 

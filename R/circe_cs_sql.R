@@ -10,7 +10,7 @@
 
 conceptSetQuerySql <- function(conceptIds) {
   conceptIds <- paste(conceptIds, collapse = ", ")
-  sql <- glue::glue("select concept_id from {{vocabularyDatabaseSchema}}.CONCEPT where concept_id in ({conceptIds})")
+  sql <- glue::glue("select concept_id from @vocabularyDatabaseSchema.CONCEPT where concept_id in ({conceptIds})")
   return(sql)
 }
 
@@ -19,8 +19,8 @@ conceptSetDescendantsSql <- function(conceptIds) {
   conceptIds <- paste(conceptIds, collapse = ", ")
   sql <- glue::glue(
     "select c.concept_id
-  from {{vocabularyDatabaseSchema}}.CONCEPT c
-  join {{vocabularyDatabaseSchema}}.CONCEPT_ANCESTOR ca on c.concept_id = ca.descendant_concept_id
+  from @vocabularyDatabaseSchema.CONCEPT c
+  join @vocabularyDatabaseSchema.CONCEPT_ANCESTOR ca on c.concept_id = ca.descendant_concept_id
   and ca.ancestor_concept_id in ({conceptIds})
   and c.invalid_reason is null"
   )
@@ -53,7 +53,7 @@ conceptSetMappedSql <- function(conceptSetQuery) {
   (
   {conceptSetQuery}
   ) C
-  join {{vocabularyDatabaseSchema}}.concept_relationship cr
+  join @vocabularyDatabaseSchema.concept_relationship cr
     on C.concept_id = cr.concept_id_2 and cr.relationship_id = 'Maps to' and cr.invalid_reason IS NULL")
   return(sql)
 }

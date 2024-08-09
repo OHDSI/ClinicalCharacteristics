@@ -8,8 +8,9 @@ createConceptSetLineItem(
   name,
   ordinal,
   statistic,
-  conceptSet,
+  timeWindows,
   domain,
+  conceptSets,
   sourceConceptSet = NULL,
   typeConceptIds = c(),
   visitOccurrenceConceptIds = c()
@@ -22,7 +23,7 @@ createConceptSetLineItem(
 
 \item{statistic}{The Statistic object to be used to evaluate the line item}
 
-\item{conceptSet}{The Capr concept set object}
+\item{timeWindows}{The Time Windows object used for the line item}
 
 \item{domain}{The domain of the concept set (must be one of 'Condition', 'Drug', 'Procedure', 'Observation', 'Measurement', 'Device')}
 
@@ -31,6 +32,8 @@ createConceptSetLineItem(
 \item{typeConceptIds}{(OPTIONAL) A list of type concept IDs to use to limit the concept set}
 
 \item{visitOccurrenceConceptIds}{(OPTIONAL) A list of visit occurrence concept IDs to use to limit the concept set}
+
+\item{conceptSet}{The Capr concept set object}
 }
 \value{
 A ConceptSetDefinition object

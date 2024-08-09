@@ -2,7 +2,7 @@
 % Please edit documentation in R/R6Wrappers.R
 \name{createConceptSetLineItemBatch}
 \alias{createConceptSetLineItemBatch}
-\title{Create a batch of concept set line items from a list of Capr concept sets. The name of each line item will be set to the name of its Capr concept set, and the ordinal will be set to the index of the Capr concept set in the list. All line items will use the same statistic, domain, type concepts, and visit concepts. It is not possible to specify source concept IDs.}
+\title{Create a batch of concept set line items from a list of Capr concept sets.}
 \usage{
 createConceptSetLineItemBatch(
   statistic,
@@ -27,5 +27,5 @@ createConceptSetLineItemBatch(
 A list of ConceptSetDefinition objects
 }
 \description{
-Create a batch of concept set line items from a list of Capr concept sets. The name of each line item will be set to the name of its Capr concept set, and the ordinal will be set to the index of the Capr concept set in the list. All line items will use the same statistic, domain, type concepts, and visit concepts. It is not possible to specify source concept IDs.
+The name of each line item will be set to the name of its Capr concept set, and the ordinal will be set to the index of the Capr concept set in the list. All line items will use the same statistic, domain, type concepts, and visit concepts. It is not possible to specify source concept IDs.
 }

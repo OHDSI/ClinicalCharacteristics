@@ -59,9 +59,9 @@ ExecutionSettings <- R6::R6Class("ExecutionSettings",
 TableShell <- R6::R6Class("TableShell",
   public = list(
     initialize = function(name,
-                          sections,
                           targetCohorts,
-                          executionSettings) {
+                          executionSettings,
+                          sections) {
       .setString(private = private, key = "name", value = name)
       .setListofClasses(private = private, key = "targetCohorts", value = targetCohorts, classes = c("TargetCohort"))
       .setListofClasses(private = private, key = "sections", value = sections, classes = c("Section"))
@@ -108,6 +108,14 @@ TargetCohort <- R6::R6Class("TargetCohort",
     getName = function(name) {
       tcName <- private$name
       return(tcName)
+    },
+    getSql = function() {
+      sqlFile <- "targetCohort.sql"
+      cohortIds <- private$id
+      # get sql from package
+      sql <- fs::path_package("ClinicalCharacteristics", fs::path("sql", sqlFile)) |>
+        readr::read_file() |>
+        glue::glue()
     }
   ),
   private = list(
@@ -153,7 +161,155 @@ Section <- R6::R6Class("Section",
   )
 )
 
-# LineItem -----
+
+# Statistic Class ---------------------
+
+# Statistic Super-------------
+
+#' @title
+#' An R6 class to define a Statistic object
+#'
+#' @description
+#' A Statistic is a type of metric to be used for characterization
+#' Specific types of statistics are defined in derived classes
+#'
+#' @export
+Statistic <- R6::R6Class("Statistic",
+                         public = list(
+                           initialize = function(type) {
+                             .setString(private = private , key = "type", value = type)
+                           },
+
+                           # helper to get state type from class
+                           getStatType = function() {
+                             statType <- private$type
+                             return(statType)
+                           }
+                         ),
+                         private = list(
+                           type = NULL
+                         )
+)
+
+## Demographic Stats
+
+### Demo Age -----------------
+Age <- R6::R6Class("DemoAge",
+                   inherit = Statistic,
+                   public = list(
+                     initialize = function(breaks = NULL) {
+                       super$initialize(type = "Age")
+                       if (!is.null(breaks)) {
+                         .setClass(private = private, key = "breaks", value = breaks, class = "Breaks")
+                       }
+                       invisible(private)
+                     }
+                   ),
+                   private = list(
+                     breaks = NULL
+                   )
+)
+
+
+### Demo Concept -----------------
+DemoConcept <- R6::R6Class("DemoConcept",
+                           inherit = Statistic,
+                           public = list(
+                             initialize = function(conceptColumn) {
+                               super$initialize(type = "DemoConcept")
+                               .setString(private = private, key = 'conceptColumn', value = conceptColumn)
+                               invisible(private)
+                             },
+                             getDemoColumn = function() {
+                               col <- private$conceptColumn
+                               return(col)
+                             }
+                           ),
+                           private = list(
+                             conceptColumn = NULL
+                           )
+)
+
+
+### Demo Year -----------------
+DemoYear <- R6::R6Class("DemoYear",
+                           inherit = Statistic,
+                           public = list(
+                             initialize = function(breaks = NULL) {
+                               super$initialize(type = "Year")
+                               if (!is.null(breaks)) {
+                                 .setClass(private = private,
+                                           key = "breaks",
+                                           value = breaks,
+                                           class = "Breaks")
+                               }
+                               invisible(private)
+                             }
+                           ),
+                           private = list(
+                             breaks = NULL
+                           )
+)
+
+
+## Presence -----------------------
+
+#' @title
+#' An R6 class to define a Presence object
+#'
+#' @description
+#' Child of Statistic. The Presence statistic is a binary metric the indicates the presence of a variable
+#'
+#' @export
+Presence <- R6::R6Class("Presence",
+                        inherit = Statistic,
+                        public = list(
+                          initialize = function(operator,
+                                                occurrences) {
+                            super$initialize(type = "Presence")
+                            # TODO change this to enforce operator from choice list
+                            .setString(private = private, key = "operator", value = operator)
+                            .setNumber(private = private, key = "occurrences", value = occurrences)
+                            invisible(private)
+                          }
+                        ),
+                        private = list(
+                          operator = NULL,
+                          occurrences = NA
+                        )
+)
+
+
+## Count -----------------------
+
+#' @title
+#' An R6 class to define a Count object
+#'
+#' @description
+#' Child of Statistic. The Count statistic is a poisson metric the indicates the number of occurrences of a variable
+#'
+#' @export
+Count <- R6::R6Class("Count",
+                     inherit = Statistic,
+                     public = list(
+                       initialize = function(breaks = NULL) {
+                         super$initialize(type = "Count")
+                         # TODO change this to enforce operator from choice list
+                         if (!is.null(breaks)) {
+                           .setClass(private = private, key = "breaks", value = breaks, class = "Breaks")
+                         }
+                         invisible(private)
+                       }
+                     ),
+                     private = list(
+                       breaks = NULL
+                     )
+)
+
+
+# LineItem Classes -----
+
+## Line Item Super----------
 
 #' @description
 #' An R6 class to define a LineItem object
@@ -166,15 +322,13 @@ LineItem <- R6::R6Class("LineItem",
     initialize = function(name,
                           ordinal,
                           definitionType,
-                          statistic#,
-                          #timeWindows
-                          ) {
+                          statistic) {
       .setString(private = private, key = "name", value = name)
       .setNumber(private = private, key = "ordinal", value = ordinal)
       # TODO change this to enforce definitionType from choice list
       .setString(private = private, key = "definitionType", value = definitionType)
       .setClass(private = private, key = "statistic", value = statistic, class = "Statistic")
-      #.setListofClasses(private = private, key = "timeWindows", value = timeWindows, classes = c("TimeWindow"))
+
       invisible(self)
     },
     getName = function() {
@@ -190,16 +344,16 @@ LineItem <- R6::R6Class("LineItem",
       return(liDefinitionType)
     }
   ),
+
   private = list(
     name = NULL,
     ordinal = NA,
     definitionType = NULL,
-    statistic = NULL#,
-    #timeWindows = NULL
+    statistic = NULL
   )
 )
 
-# ConceptSetDefinition ----
+## ConceptSetDefinition ----
 
 #' @description
 #' An R6 class to define a ConceptSetDefinition
@@ -208,77 +362,197 @@ LineItem <- R6::R6Class("LineItem",
 ConceptSetDefinition <- R6::R6Class("ConceptSetDefinition",
   inherit = LineItem,
   public = list(
+
+    # initialize the class
     initialize = function(name,
                           ordinal,
                           statistic,
-                          conceptSet,
                           domain,
+                          conceptSet,
+                          timeInterval,
                           sourceConceptSet = NULL,
                           typeConceptIds = c(),
                           visitOccurrenceConceptIds = c()) {
-      super$initialize(name = name, ordinal = ordinal, definitionType = "conceptSet", statistic = statistic)
-      .setClass(private = private, key = "conceptSet", value = conceptSet, class = "ConceptSet")
-      # TODO change this to enforce domain from choice list
+      super$initialize(name = name, ordinal = ordinal, definitionType = "ConceptSet",
+                       statistic = statistic)
       .setString(private = private, key = "domain", value = domain)
+      .setClass(private = private, key = "conceptSet", value = conceptSet, class = "ConceptSet")
+      .setClass(private = private, key = "timeInterval", value = timeInterval, class = "TimeInterval")
+      # TODO change this to enforce domain from choice list
       .setClass(private = private, key = "sourceConceptSet", value = sourceConceptSet, class = "ConceptSet", nullable = TRUE)
       .setNumber(private = private, key = "typeConceptIds", value = typeConceptIds, nullable = TRUE)
       .setNumber(private = private, key = "visitOccurrenceConceptIds", value = visitOccurrenceConceptIds, nullable = TRUE)
+    },
+
+    # helper to pull concept Capr class items
+    grabConceptSet = function() {
+      cs <- private$conceptSet
+      return(cs)
+    },
+
+    # helper to get reference table of the concept sets in the class
+    getConceptSetRef = function() {
+      # # make key for cs use
+      csTbl <- tibble::tibble(
+        'name' = private$conceptSet@Name,
+        'hash' = private$conceptSet@id
+      )
+      return(csTbl)
+    },
+
+    # helper to get the domain within the class
+    getDomain = function() {
+      dm <- private$domain
+      return(dm)
+    },
+
+    # helper to retrieve the time windows in the clas
+    getTimeInterval = function() {
+      tw <- private$timeInterval$getTimeInterval()
+      return(tw)
+    },
+
+    getStatisticType = function() {
+      statNm <- private$statistic$getStatType()
+      return(statNm)
     }
   ),
   private = list(
-    conceptSet = NULL,
     domain = NULL,
+    conceptSet = NULL,
+    timeInterval = NULL,
     sourceConceptSet = NULL,
     typeConceptIds = c(),
     visitOccurrenceConceptIds = c()
   )
 )
 
-#' @title
-#' An R6 class to define a Statistic object
-#' 
+# DemographicDefinition -----
+
 #' @description
-#' A Statistic is a type of metric to be used for characterization
-#' Specific types of statistics are defined in derived classes
+#' An R6 class to handle the ...
 #'
 #' @export
-Statistic <- R6::R6Class("Statistic",
+DemographicDefinition <- R6::R6Class("DemographicDefinition",
+  inherit = LineItem,
   public = list(
-    initialize = function(type) {
-      .setString(private = private , key = "type", value = type)
+    initialize = function(name,
+                          ordinal,
+                          statistic) {
+      super$initialize(name = name,
+                       ordinal = ordinal,
+                       definitionType = "Demographic",
+                       statistic = statistic)
+    },
+    # function to get sql
+    getSql = function() {
+
+      # get stat type
+      statType <- private$statistic$getStatType()
+
+      # prep sql if Age demographic
+      if (statType == "Age") {
+        sqlFile <- "demoAgeChar.sql"
+        ordinal <- private$ordinal
+        # get sql from package
+        sql <- fs::path_package("ClinicalCharacteristics", fs::path("sql", sqlFile)) |>
+          readr::read_file() |>
+          glue::glue()
+      }
+
+      # prep sql if Concept demographic
+      if (statType == "DemoConcept") {
+        sqlFile <- "demoConceptChar.sql"
+        ordinal <- private$ordinal
+        conceptColumn <- private$statistic$getDemoColumn()
+        # get sql from package
+        sql <- fs::path_package("ClinicalCharacteristics", fs::path("sql", sqlFile)) |>
+          readr::read_file() |>
+          glue::glue()
+      }
+
+      # prep sql if Concept demographic
+      if (statType == "Year") {
+        sqlFile <- "demoYearChar.sql"
+        ordinal <- private$ordinal
+        # get sql from package
+        sql <- fs::path_package("ClinicalCharacteristics", fs::path("sql", sqlFile)) |>
+          readr::read_file() |>
+          glue::glue()
+      }
+
+
+      return(sql)
     }
-  ),
-  private = list(
-    type = NULL
   )
 )
 
-#' @title
-#' An R6 class to define a Presence object
-#' 
-#' @description
-#' Child of Statistic. The Presence statistic is a binary metric the indicates the presence of a variable
-#'
-#' @export
-Presence <- R6::R6Class("Presence", 
-  inherit = Statistic,
+
+
+# Helper Classes -----
+
+## TimeInterval ------
+
+TimeInterval <- R6::R6Class(
+  "TimeInterval",
   public = list(
-    initialize = function(operator, 
-                          occurrences) {
-      super$initialize(type = "Presence")
-      # TODO change this to enforce operator from choice list
-      .setString(private = private, key = "operator", value = operator)
-      .setNumber(private = private, key = "occurrences", value = occurrences)
+    initialize = function(lb, rb) {
+      .setNumber(private = private, key = "lb", value = lb)
+      .setNumber(private = private, key = "rb", value = rb)
+      invisible(self)
+    },
+    getTimeInterval = function() {
+      tb <- tibble::tibble(
+        lb = private$lb,
+        rb = private$rb
+      )
+      return(tb)
     }
   ),
   private = list(
-    operator = NULL,
-    occurrences = NA
+    'lb' = NA_integer_,
+    'rb' = NA_integer_
   )
 )
+
+
+## TimeWindow ------
+#
+# TimeWindow <- R6::R6Class(
+#   "TimeWindow",
+#   public = list(
+#     initialize = function(windows) {
+#       .setListofClasses(
+#         private = private,
+#         key = "windows",
+#         value = windows,
+#         classes = c("TimeInterval")
+#       )
+#       invisible(self)
+#     },
+#     length = function() {
+#       ll <- length(private$windows)
+#       return(ll)
+#     },
+#     getTimeIntervals = function() {
+#
+#       tis <- purrr::map_dfr(
+#         private$windows,
+#         ~tibble::tibble(
+#           'lb' = .x$getLeftBound(),
+#           'rb' = .x$getRightBound()
+#         )
+#       )
+#       return(tis)
+#     }
+#   ),
+#   private = list(
+#     windows = NULL
+#   )
+# )
 
 # # GenderDefinition -----
-# 
+#
 # #' @description
 # #' An R6 class to define a GenderDefinition object.
 # #'
@@ -298,28 +572,7 @@ Presence <- R6::R6Class("Presence",
 #  )
 # )
 
-# # AgeDefinition -----
 
-# #' @description
-# #' An R6 class to handle the ...
-# #'
-# #' @export
-# AgeDefinition <- R6::R6Class("AgeDefinition",
-#   inherit = LineItem,
-#   public = list(
-#     initialize = function(name,
-#                           minAge,
-#                           maxAge) {
-#       super$setName(name = name)
-#       super$setDomainIds(domainIds = "Age")
-#       super$setMinThreshold(minThreshold = minAge)
-#       super$setMaxThreshold(maxThreshold = maxAge)
-#
-#       templateSql <- "select something;" ## TODO as SqlRender::loadRenderTranslateSql()
-#       super$setTemplateSql(templateSql = templateSql)
-#     }
-#   )
-# )
 
 
 # # IndexYearDefinition -----
@@ -359,7 +612,7 @@ Presence <- R6::R6Class("Presence",
 #    },
 #    getConceptSetDefinitions = function() {
 #      conceptSetDefinitions <- private$conceptSetDefinitions
-#      return(conceptSetDefinitions)   
+#      return(conceptSetDefinitions)
 #     }
 #   ),
 #   private = list(
@@ -368,8 +621,8 @@ Presence <- R6::R6Class("Presence",
 # ))
 
 
-  
-      
+
+
 # # CohortDefinition ----
 
 # #' @description
@@ -425,6 +678,7 @@ Presence <- R6::R6Class("Presence",
 # ))
 
 # ######## MORE TO-DO #####
+
 
 # # ValueDefinition ----
 
