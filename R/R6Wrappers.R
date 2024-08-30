@@ -3,20 +3,17 @@
 #'
 #' @param title The title of the TableShell
 #' @param targetCohorts A list of TargetCohort objects
-#' @param executionSettings An ExecutionSettings object
-#' @param sections A list of Section objects
+#' @param lineItems A list of lineItem objects
 #'
 #' @return A TableShell object
 #'
 #' @export
-createTableShell <- function(name,
-                            targetCohorts,
-                            executionSettings,
-                            sections) {
-    tableShell <- TableShell$new(name = name,
+createTableShell <- function(title,
+                             targetCohorts,
+                             lineItems) {
+    tableShell <- TableShell$new(name = title,
                                  targetCohorts = targetCohorts,
-                                 executionSettings = executionSettings,
-                                 sections = sections,)
+                                 lineItems = lineItems)
     return(tableShell)
 }
 
@@ -59,28 +56,44 @@ createTargetCohort <- function(id, name) {
 #' @param tempEmulationSchema Some database platforms like Oracle and Snowflake do not truly support temp tables. To emulate temp tables, provide a schema with write privileges where temp tables can be created.
 #' @param targetCohortTable The name of the table where the target cohort(s) are stored
 #' @param cdmSourceName A human-readable name for the OMOP CDM source
-#' @param numThreads (OPTIONAL) The number of threads to use for parallel processing
 #'
 #' @return An ExecutionSettings object
 #' @export
 createExecutionSettings <- function(connectionDetails,
-                                    connection,
+                                    connection = NULL,
                                     cdmDatabaseSchema,
                                     workDatabaseSchema,
                                     tempEmulationSchema,
                                     targetCohortTable,
-                                    cdmSourceName,
-                                    numThreads) {
+                                    cdmSourceName) {
   executionSettings <- ExecutionSettings$new(connectionDetails = connectionDetails,
                                              connection = connection,
                                              cdmDatabaseSchema = cdmDatabaseSchema,
                                              workDatabaseSchema = workDatabaseSchema,
                                              tempEmulationSchema = tempEmulationSchema,
                                              targetCohortTable = targetCohortTable,
-                                             cdmSourceName = cdmSourceName,
-                                             numThreads = numThreads)
+                                             cdmSourceName = cdmSourceName)
   return(executionSettings)
 }
+
+
+defaultTableShellBuildOptions <- function(keepResultsTable = FALSE,
+                                          resultsTempTable = "#results_table",
+                                          codesetTempTable = "#codeset",
+                                          timeWindowTempTable = "#time_windows",
+                                          targetCohortTempTable = "#target_cohorts") {
+
+  buildOpts <- BuildOptions$new(
+    keepResultsTable = keepResultsTable,
+    resultsTempTable = resultsTempTable,
+    codesetTempTable = codesetTempTable,
+    timeWindowTempTable = timeWindowTempTable,
+    targetCohortTempTable = targetCohortTempTable
+  )
+  return(buildOpts)
+
+}
+
 
 #' @title
 #' Create a single time interval
@@ -102,25 +115,16 @@ createPresence <- function(operator = "at_least", occurrences = 1) {
   return(pres)
 }
 
-#' @title
-#' Create a Section object and set its attributes
-#' @param title The title of the Section
-#' @param ordinal The ordinal of the Section
-#' @param lineItems A list of LineItem objects
-#'
-#' @return A Section object
-#'
-#' @export
-createSection <- function(name, ordinal, lineItems) {
-  section <- Section$new(name, ordinal, lineItems)
-  return(section)
+
+createCount <- function(breaks = NULL) {
+  occurrenceCount <- Count$new(breaks = breaks)
+  return(occurrenceCount)
 }
 
 #' @title
 #' Create a concept set line item and set its attributes
 #'
 #' @param name (OPTIONAL) The name of the line item (if not provided, the name will be set to the Capr concept set name)
-#' @param ordinal The ordinal of the line item within a section
 #' @param statistic The Statistic object to be used to evaluate the line item
 #' @param domain The domain of the concept set (must be one of 'Condition', 'Drug', 'Procedure', 'Observation', 'Measurement', 'Device')
 #' @param conceptSet The Capr concept set object
@@ -133,7 +137,6 @@ createSection <- function(name, ordinal, lineItems) {
 #'
 #' @export
 createConceptSetLineItem <- function(name,
-                                     ordinal,
                                      statistic,
                                      domain,
                                      conceptSet,
@@ -142,7 +145,6 @@ createConceptSetLineItem <- function(name,
                                      typeConceptIds = c(),
                                      visitOccurrenceConceptIds = c()) {
   csDefinition <- ConceptSetDefinition$new(name = name,
-                                           ordinal = ordinal,
                                            statistic = statistic,
                                            domain = domain,
                                            conceptSet = conceptSet,
@@ -153,24 +155,7 @@ createConceptSetLineItem <- function(name,
   return(csDefinition)
 }
 
-# function to get timeInterval and concept set combinations
-.permuteCsTi <- function(conceptSets, timeIntervals) {
 
-  # get number of items for each
-  numCs <- length(conceptSets)
-  numTis <- length(timeIntervals)
-
-  # build out permutations
-  csPerm <- rep(conceptSets, times = numTis)
-  tiPerm <- rep(timeIntervals, each = numCs)
-
-  permTiCs <- list(
-    'conceptSets' = csPerm,
-    'timeIntervals' = tiPerm
-  )
-  return(permTiCs)
-
-}
 
 #' @title
 #' Create a batch of concept set line items from a list of Capr concept sets.
@@ -210,7 +195,6 @@ createConceptSetLineItemBatch <- function(
     permDf$timeIntervals,
     ~createConceptSetLineItem(
       name = name,
-      ordinal = NA_integer_,
       statistic = statistic,
       domain = domain,
       conceptSet = .x,
@@ -225,13 +209,16 @@ createConceptSetLineItemBatch <- function(
   return(csLiBatch)
 }
 
-
-createGenderLineItem <- function(ordinal) {
+#' @title
+#' Create gender demographic line item
+#'
+#' @return A Demographic line item type class object
+#' @export
+createGenderLineItem <- function() {
 
   gender <- DemographicDefinition$new(
     name = "Gender",
-    ordinal = ordnial,
-    statistic = DemoConcept$new(conceptColumn = "gender_concept_id")
+    statistic = DemographicConcept$new(conceptColumn = "gender_concept_id")
   )
 
   return(gender)
@@ -239,46 +226,74 @@ createGenderLineItem <- function(ordinal) {
 }
 
 
-createRaceLineItem <- function(ordinal) {
+#' @title
+#' Create race demographic line item
+#'
+#' @return A Demographic line item type class object
+#' @export
+createRaceLineItem <- function() {
 
   gender <- DemographicDefinition$new(
     name = "Race",
-    ordinal = ordinal,
-    statistic = DemoConcept$new(conceptColumn = "race_concept_id")
+    statistic = DemographicConcept$new(conceptColumn = "race_concept_id")
   )
 
   return(gender)
 
 }
 
-createEthnicityLineItem <- function(ordinal) {
+#' @title
+#' Create ethnicity demographic line item
+#'
+#' @return A Demographic line item type class object
+#' @export
+createEthnicityLineItem <- function() {
 
   gender <- DemographicDefinition$new(
     name = "Ethnicity",
-    ordinal = ordnial,
-    statistic = DemoConcept$new(conceptColumn = "ethnicity_concept_id")
+    statistic = DemographicConcept$new(conceptColumn = "ethnicity_concept_id")
   )
 
   return(gender)
 
 }
 
-
-createAgeLineItem <- function(ordinal, breaks = NULL) {
+#' @title
+#' Create age demographic line item
+#'
+#' @param breaks A breaks object describing how to categorize the continuous value
+#' @return A Demographic line item type class object
+#' @export
+createAgeLineItem <- function(breaks = NULL) {
 
   age <- DemographicDefinition$new(
     name = "Age",
-    ordinal = ordinal,
-    statistic = Age$new(breaks = breaks)
+    statistic = DemographicAge$new(breaks = breaks)
   )
 
   return(age)
 
 }
 
+#' @title
+#' Combine all lineItems to enter into the tableShell slot
+#'
+#' @param ... A list of lineItems created from various calls
+#' @return a flattened list of lineItems
+#' @export
+lineItems <- function(...) {
+  listOfLineItems <- list(...) |>
+    purrr::list_flatten()
+  # ensure that all elements are lineItems
+  checkmate::assert_list(x = listOfLineItems, types = "LineItem", null.ok = FALSE, min.len = 1)
 
-# addGenderItem <- function(genderConceptIds = c(),
-#                           inputType) {
-#   gender <- GenderDefinition$new(inputType = "Explicit", genderConceptIds = genderConceptIds)
+  # add in ordinals
+  ii <- seq_along(listOfLineItems)
+  for(i in ii) {
+    listOfLineItems[[i]]$ordinal <- ii[i]
+  }
+  return(listOfLineItems)
+}
 
-# }
+
+

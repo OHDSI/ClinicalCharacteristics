@@ -2,5 +2,5 @@
 SELECT *
 INTO @targetTable
 FROM @workDatabaseSchema.@cohortTable
-WHERE cohort_definition_id IN ({cohortId})
+WHERE cohort_definition_id IN ({cohortIds})
 ;

@@ -10,5 +10,5 @@ SELECT
 FROM @targetTable t
 JOIN @cdmDatabaseSchema.person d
 ON t.subject_id = d.person_id
-WHERE d.{conceptColumn} IN ({conceptIds})
+-- WHERE d.conceptColumn IN (conceptIds) /* Removed temporarily*/
 ;

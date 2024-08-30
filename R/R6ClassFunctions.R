@@ -53,3 +53,24 @@
   private[[key]] <- value
   invisible(private)
 }
+
+
+.setActiveLogical <- function(private, key, value) {
+  # return the value if nothing added
+  if(missing(value)) {
+    vv <- private[[key]]
+    return(vv)
+  }
+  # replace the codesetTempTable
+  .setLogical(private = private, key = key, value = value)
+}
+
+.setActiveString <- function(private, key, value) {
+  # return the value if nothing added
+  if(missing(value)) {
+    vv <- private[[key]]
+    return(vv)
+  }
+  # replace the codesetTempTable
+  .setString(private = private, key = key, value = value)
+}

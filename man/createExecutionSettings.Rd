@@ -6,13 +6,12 @@
 \usage{
 createExecutionSettings(
   connectionDetails,
-  connection,
+  connection = NULL,
   cdmDatabaseSchema,
   workDatabaseSchema,
   tempEmulationSchema,
   targetCohortTable,
-  cdmSourceName,
-  numThreads
+  cdmSourceName
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ createExecutionSettings(
 \item{targetCohortTable}{The name of the table where the target cohort(s) are stored}
 
 \item{cdmSourceName}{A human-readable name for the OMOP CDM source}
-
-\item{numThreads}{(OPTIONAL) The number of threads to use for parallel processing}
 }
 \value{
 An ExecutionSettings object
