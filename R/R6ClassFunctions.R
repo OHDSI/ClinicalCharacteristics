@@ -12,8 +12,8 @@
   caseSql <- glue::glue("case {sql} end as covariate_id", sql = paste(caseSql, collapse = "\n"))
 }
 
-.setString <- function(private, key, value) {
-  checkmate::assert_string(x = value, na.ok = FALSE, min.chars = 1, null.ok = FALSE)
+.setString <- function(private, key, value, naOk = FALSE) {
+  checkmate::assert_string(x = value, na.ok = naOk, min.chars = 1, null.ok = FALSE)
   private[[key]] <- value
   invisible(private)
 }
@@ -23,6 +23,13 @@
   private[[key]] <- value
   invisible(private)
 }
+
+.setInteger <- function(private, key, value, nullable = FALSE) {
+  checkmate::assert_integer(x = value, null.ok = nullable)
+  private[[key]] <- value
+  invisible(private)
+}
+
 
 .setLogical <- function(private, key, value) {
   checkmate::assert_logical(x = value, null.ok = FALSE)
@@ -73,4 +80,14 @@
   }
   # replace the codesetTempTable
   .setString(private = private, key = key, value = value)
+}
+
+
+.setActiveInteger <- function(private, key, value) {
+  # return the value if nothing added
+  if(missing(value)) {
+    vv <- private[[key]]
+    return(vv)
+  }
+  .setInteger(private = private, key = key, value = value)
 }

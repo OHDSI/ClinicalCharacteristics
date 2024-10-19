@@ -790,7 +790,7 @@ CohortInfo <- R6::R6Class("CohortInfo",
 #' Specific types of statistics are defined in derived classes
 #'
 #' @export
-Statistic <- R6::R6Class("Statistic",
+Statistic_old <- R6::R6Class("Statistic",
                          public = list(
                            initialize = function(type) {
                              .setString(private = private , key = "type", value = type)
@@ -953,7 +953,7 @@ Count <- R6::R6Class("Count",
 #' Derived classes exist off of LineItems
 #'
 #' @export
-LineItem <- R6::R6Class("LineItem",
+LineItem_old <- R6::R6Class("LineItem",
   public = list(
     initialize = function(name,
                           #ordinal,
@@ -1015,7 +1015,7 @@ LineItem <- R6::R6Class("LineItem",
 #' An R6 class to define a ConceptSetLineItem
 #'
 #' @export
-ConceptSetLineItem <- R6::R6Class("ConceptSetLineItem",
+ConceptSetLineItem_old <- R6::R6Class("ConceptSetLineItem",
   inherit = LineItem,
   public = list(
 
@@ -1204,7 +1204,7 @@ CohortLineItem <- R6::R6Class("CohortLineItem",
                           statistic,
                           cohort,
                           timeInterval) {
-      super$initialize(name = name, 
+      super$initialize(name = name,
                        definitionType = "Cohort",
                        statistic = statistic)
       .setClass(private = private, key = "cohort", value = cohort, class = "CohortInfo")
@@ -1278,7 +1278,7 @@ CohortLineItem <- R6::R6Class("CohortLineItem",
 
 ## TimeInterval ------
 
-TimeInterval <- R6::R6Class(
+TimeInterval_old <- R6::R6Class(
   "TimeInterval",
   public = list(
     initialize = function(lb, rb) {

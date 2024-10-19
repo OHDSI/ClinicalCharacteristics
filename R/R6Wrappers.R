@@ -135,22 +135,21 @@ createCount <- function(breaks = NULL) {
 #' @return A ConceptSetLineItem object
 #'
 #' @export
-createConceptSetLineItem <- function(name = NULL,
-                                     statistic,
+
+createConceptSetLineItem <- function(sectionLabel = NA_character_,
                                      domain,
                                      conceptSet,
                                      timeInterval,
+                                     statistic,
                                      sourceConceptSet = NULL,
                                      typeConceptIds = c(),
                                      visitOccurrenceConceptIds = c()) {
-  if (is.null(name)) {
-    name = conceptSet@Name
-  }
-  csDefinition <- ConceptSetLineItem$new(name = name,
-                                         statistic = statistic,
-                                         domain = domain,
+
+  csDefinition <- ConceptSetLineItem$new(sectionLabel = sectionLabel,
+                                         domainTable = domain,
                                          conceptSet = conceptSet,
                                          timeInterval = timeInterval,
+                                         statistic = statistic,
                                          sourceConceptSet = sourceConceptSet,
                                          typeConceptIds = typeConceptIds,
                                          visitOccurrenceConceptIds = visitOccurrenceConceptIds)
