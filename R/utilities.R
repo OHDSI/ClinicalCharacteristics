@@ -13,52 +13,50 @@
   return(lineItemIds)
 }
 
-.getCsFromR6 <- function(lineItems, classType) {
-  # get the class types
-  lineItemIds <- .findLineItemId(lineItems, classType)
-  #subset the line items to those with a concept set
-  li2 <- lineItems[lineItemIds]
+.getCsFromR6 <- function(lineItems) {
 
-  # grab concept set meta
-  if (classType == "ConceptSet") {
-    csHash <- purrr::map_chr(li2, ~.x$grabConceptSet()@id)
-    csName <- purrr::map_chr(li2, ~.x$grabConceptSet()@Name)
-  }
-
-  if (classType == "ConceptSetGroup") {
-    csg <- purrr::map(li2, ~.x$grabConceptSet()) |> purrr::list_flatten()
-    csHash <- purrr::map_chr(csg, ~.x@id)
-    csName <- purrr::map_chr(csg, ~.x@Name)
-  }
-
-
-  tb <- tibble::tibble(
-    id = csHash,
-    name = csName
+  idsToPluck <- c(
+    .findLineItemId(lineItems = lineItems, classType = "ConceptSet"),
+    .findLineItemId(lineItems = lineItems, classType = "ConceptSetGroup")
   )
+  filteredLineItems <- lineItems[idsToPluck]
 
-  return(tb)
+  csCapr <- purrr::map(
+    filteredLineItems,
+    ~.x$grabConceptSet()
+  ) |>
+    purrr::list_flatten()
+
+
+  # cs_id <- !duplicated(purrr::map_chr(csCapr, ~.x@id))
+  # cs_tbl2 <- csCapr[cs_id]
+
+  return(csCapr)
 }
 
 .setCsValueId <- function(lineItems) {
 
-  tsMeta <- purrr::map_dfr(
+  csMeta <- purrr::map_dfr(
     lineItems, ~.x$getLineItemMeta()
   ) |>
     dplyr::filter(
       grepl("ConceptSet", lineItemClass)
     )
 
-  ordId <- tsMeta$ordinalId
+  caprCs <- .getCsFromR6(lineItems)
 
-  # get the cs id
-  csId <- .getCsFromR6(lineItems, classType = "ConceptSet") |>
-    dplyr::bind_rows(getCsFromR6(lineItems, classType = "ConceptSetGroup")) |>
+  tb <- tibble::tibble(
+    id = purrr::map_chr(caprCs, ~.x@id),
+    name = purrr::map_chr(caprCs, ~.x@Name)
+  )
+
+  csId <- tb |>
     dplyr::mutate(
       csId = dplyr::dense_rank(id)
     ) |>
     dplyr::pull(csId)
 
+  ordId <- csMeta$ordinalId
 
   for (i in seq_along(ordId)) {
     ii <- ordId[i]

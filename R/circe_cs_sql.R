@@ -139,7 +139,7 @@ build_codeset_query <- function(tb, id){
   return(codeset_query)
 }
 
-bind_codeset_queries <- function(conceptSet, codesetTable) {
+.bindCodesetQueries <- function(conceptSet, codesetTable) {
 
   #make ids for concept sets
   ids <- seq_along(conceptSet)

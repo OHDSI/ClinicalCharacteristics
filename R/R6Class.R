@@ -330,9 +330,11 @@ TableShell <- R6::R6Class("TableShell",
 
     # pluck Concept Set Line Items
     .pluckLineItems = function(classType) {
-      lineItems <- self$getLineItems() |>
-        .getLineItemClassType(classType)
-      return(lineItems)
+      lineItems <- self$getLineItems()
+      idsToPluck <- .findLineItemId(lineItems = lineItems, classType = classType)
+
+      filteredLineItems <- lineItems[idsToPluck]
+      return(filteredLineItems)
     },
 
     .identifyCategoryIds = function() {
@@ -396,19 +398,12 @@ TableShell <- R6::R6Class("TableShell",
       codesetTable <-  buildOptions$codesetTempTable
 
       # get concept set line items
-      csLineItems <- private$.pluckLineItems(classType = "ConceptSetLineItem")
-      if (length(csLineItems) >= 1) {
-        # retrieve each concept set from the line items and flatten
-        csCapr <- purrr::map(
-          csLineItems,
-          ~.x$grabConceptSet()
-        )
-        # remove duplicated ids
-        cs_id <- !duplicated(purrr::map_chr(csCapr, ~.x@id))
-        cs_tbl2 <- csCapr[cs_id]
+      li <- self$getLineItems()
+      caprCs <- .getCsFromR6(li)
 
-        # change function name to .camel
-        cs_query <- bind_codeset_queries(cs_tbl2, codesetTable = codesetTable)
+      if (length(caprCs) >= 1) {
+        #turn into query
+        cs_query <- .bindCodesetQueries(caprCs, codesetTable = codesetTable)
       } else{
         cs_query <- ""
       }
@@ -444,8 +439,9 @@ TableShell <- R6::R6Class("TableShell",
         csTables <- csMeta |>
           dplyr::select(valueId, valueDescription, timeLabel, domainTable)
 
+        # Step 3: get the domains to join
         domainTablesInUse <- unique(csTables$domainTable)
-
+        # step 4: make the concept set occurrence sql
         conceptSetOccurrenceSqlGrp <- purrr::map(
           domainTablesInUse,
           ~.prepConceptSetOccurrenceQuerySql(
