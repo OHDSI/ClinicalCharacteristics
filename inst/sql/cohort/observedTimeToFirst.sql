@@ -29,7 +29,8 @@ FROM (
         ON l.raw_occurrence_id = m.value_id AND l.raw_occurrence_description = m.value_description AND l.time_label = m.time_label
         JOIN @cdm_database_schema.observation_period op
         ON l.subject_id = op.person_id
-        WHERE l.event_start_date BETWEEN op.observation_period_start_date AND op.observation_period_end_date
+        WHERE l.cohort_start_date BETWEEN op.observation_period_start_date AND op.observation_period_end_date
+        AND l.event_start_date BETWEEN op.observation_period_start_date AND op.observation_period_end_date
       ) a
       WHERE ordinal = 1
 ) d
