@@ -621,7 +621,8 @@
       SqlRender::render(
         patient_level_data = buildOptions$patientLevelDataTempTable,
         cohort_occurrence_table = buildOptions$cohortOccurrenceTempTable,
-        ts_meta_table = buildOptions$tsMetaTempTable
+        ts_meta_table = buildOptions$tsMetaTempTable, 
+        cdm_database_schema = executionSettings$cdmDatabaseSchema
       )
   } else{
     observedTimeToFirstSql <- ""
