@@ -13,7 +13,7 @@ FROM (
       FROM (
         SELECT l.*,
           ROW_NUMBER() OVER (
-            PARTITION BY l.target_cohort_id, l.subject_id, l.time_label, l.raw_occurrence_description, l.raw_occurrence_id
+            PARTITION BY l.target_cohort_id, l.subject_id
             ORDER BY l.event_start_date ASC
           ) as ordinal
         FROM (
