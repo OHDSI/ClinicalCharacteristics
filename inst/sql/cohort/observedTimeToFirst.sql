@@ -19,7 +19,7 @@ FROM (
         FROM (
           SELECT target_cohort_id, subject_id, cohort_start_date, cohort_end_date, domain_table, time_label, raw_occurrence_id,
             raw_occurrence_description,
-            CASE WHEN event_start_date < cohort_start_date THEN cohort_start_date ELSE event_start_date END as event_start_date,
+            event_start_date,
             event_end_date
             FROM @cohort_occurrence_table
           ) l
@@ -31,6 +31,7 @@ FROM (
         ON l.subject_id = op.person_id
         WHERE l.cohort_start_date BETWEEN op.observation_period_start_date AND op.observation_period_end_date
         AND l.event_start_date BETWEEN op.observation_period_start_date AND op.observation_period_end_date
+        AND l.event_start_date >= l.cohort_start_date
       ) a
       WHERE ordinal = 1
 ) d
