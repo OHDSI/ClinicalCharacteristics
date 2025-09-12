@@ -25,7 +25,6 @@ FROM (
         ON l.subject_id = op.person_id
         WHERE l.cohort_start_date BETWEEN op.observation_period_start_date AND op.observation_period_end_date
         AND l.event_date BETWEEN op.observation_period_start_date AND op.observation_period_end_date
-        AND l.event_date >= l.cohort_start_date
       ) a
       WHERE ordinal = 1
 ) d
