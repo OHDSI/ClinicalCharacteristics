@@ -7,6 +7,7 @@ SELECT
   t2.patient_line,
   'breaks' AS statistict_type,
   t2.subject_count,
+  t2.tot_subjects,
   t2.subject_count / t2.tot_subjects AS pct
 FROM (
   SELECT

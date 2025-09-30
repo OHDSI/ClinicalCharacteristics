@@ -29,5 +29,6 @@ CREATE TABLE @categorical_table (
 	patient_line VARCHAR(50) NOT NULL,
 	statistic_type VARCHAR(50) NOT NULL,
 	subject_count BIGINT NOT NULL,
+	tot_subjects BIGINT NOT NULL,
 	pct FLOAT NOT NULL
 );

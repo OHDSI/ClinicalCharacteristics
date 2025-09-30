@@ -518,7 +518,21 @@
     timeToFirstSql <- ""
   }
 
-  sql <- c(anyCountSql, observedCountSql, adherentCountSql, timeToFirstSql) |>
+  # concept set observedTimeToFirst
+  if (any(statType == "observedTimeToFirst")) {
+    observedTimeToFirstSql <- fs::path(sqlConceptSetPath, "observedTimeToFirst.sql") |>
+      readr::read_file() |>
+      SqlRender::render(
+        patient_level_data = buildOptions$patientLevelDataTempTable,
+        cohort_occurrence_table = buildOptions$cohortOccurrenceTempTable,
+        ts_meta_table = buildOptions$tsMetaTempTable,
+        cdm_database_schema = executionSettings$cdmDatabaseSchema
+      )
+  } else{
+    observedTimeToFirstSql <- ""
+  }
+
+  sql <- c(anyCountSql, observedCountSql, adherentCountSql, timeToFirstSql, observedTimeToFirstSql) |>
     glue::glue_collapse(sep = "\n\n")
 
   return(sql)
@@ -600,7 +614,21 @@
     timeToFirstSql <- ""
   }
 
-  sql <- c(anyCountSql, observedCountSql, adherentCountSql, timeToFirstSql) |>
+  # concept set observedTimeToFirst
+  if (any(statType == "observedTimeToFirst")) {
+    observedTimeToFirstSql <- fs::path(sqlConceptSetPath, "observedTimeToFirst.sql") |>
+      readr::read_file() |>
+      SqlRender::render(
+        patient_level_data = buildOptions$patientLevelDataTempTable,
+        cohort_occurrence_table = buildOptions$cohortOccurrenceTempTable,
+        ts_meta_table = buildOptions$tsMetaTempTable,
+        cdm_database_schema = executionSettings$cdmDatabaseSchema
+      )
+  } else{
+    observedTimeToFirstSql <- ""
+  }
+
+  sql <- c(anyCountSql, observedCountSql, adherentCountSql, timeToFirstSql, observedTimeToFirstSql) |>
     glue::glue_collapse(sep = "\n\n")
 
   return(sql)
@@ -919,12 +947,15 @@
     ) |>
     dplyr::select(
       targetCohortId, targetCohortName, ordinalId, sectionLabel, lineItemLabel,
-      patientLine, statisticType, timeLabel, subjectCount, pct
+      patientLine, statisticType, timeLabel, subjectCount, totSubjects, pct
     ) |>
     dplyr::arrange(
       targetCohortId, ordinalId, lineItemLabel
     ) |>
     dplyr::distinct()
+
+  #categoricalResults <- .completeMissingData(categoricalResults, tsm)
+
 
   return(categoricalResults)
 
@@ -984,5 +1015,48 @@
     dplyr::distinct()
 
   return(continuousResults)
+
+}
+
+
+.completeMissingData <- function(categoricalResults, tsm) {
+
+  missingLines <- tsm[!(tsm$ordinalId %in% categoricalResults$ordinalId), ]
+
+  if (nrow(missingLines) > 0) {
+    cohortCounts <- categoricalResults |>
+      dplyr::filter(sectionLabel != "Demographics") |>
+      dplyr::select(
+        targetCohortId, targetCohortName, patientLine, timeLabel, totSubjects
+      ) |>
+      dplyr::distinct()
+
+
+    missingLinesDf <- missingLines |>
+      dplyr::filter(
+        !(statisticType %in% c("continuousDistribution"))
+      ) |>
+      dplyr::cross_join(cohortCounts) |>
+      dplyr::select(
+        targetCohortId, targetCohortName, ordinalId,
+        sectionLabel, lineItemLabel, patientLine = personLineTransformation,
+        statisticType, timeLabel = timeLabel.x, totSubjects
+      ) |>
+      dplyr::mutate(
+        subjectCount = 0,
+        pct = 0
+      )
+
+    finalCatResults <- categoricalResults |>
+      dplyr::bind_rows(missingLinesDf) |>
+      dplyr::arrange(
+        targetCohortId, ordinalId, lineItemLabel
+      )
+  } else {
+    finalCatResults <- categoricalResults
+  }
+
+
+  return(finalCatResults)
 
 }
