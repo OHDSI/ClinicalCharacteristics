@@ -270,6 +270,19 @@ timeToFirst <- function() {
   return(stat)
 }
 
+#' @title
+#' Observed Time To First
+#'
+#' @description
+#' Create a time to stat where only occurrence during the observation period is valid
+#'
+#' @return A stat object continuousDistribution
+#'
+#' @export
+observedTimeToFirst <- function() {
+  stat <- ContinuousDistribution$new(personLine = "observedTimeToFirst")
+  return(stat)
+}
 
 #' @title
 #' Any Score
