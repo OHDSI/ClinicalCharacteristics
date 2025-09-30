@@ -1,6 +1,7 @@
-# ClinicalCharacteristics 1.0.1
+# ClinicalCharacteristics 1.1.0
 
 * Add totSubjects column to clarify denominator
+* Add function for observedTimeToFirst
 
 # ClinicalCharacteristics 1.0.0
 
