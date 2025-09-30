@@ -40,8 +40,6 @@ defaultTableShellBuildOptions(
 
 \item{continuousSummaryTempTable}{the name of the continuous summary table used in execution. Defaults as a temp table #continuous_table}
 
-\item{connectionDetails}{A DatabaseConnector connectionDetails object (optional if connection is specified)}
-
 \item{useCohortEra}{a true false toggle specifying if in a cohort Char whether to use the cohort era (TRUE) or just the start date (FALSE)}
 }
 \value{
