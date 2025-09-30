@@ -919,7 +919,7 @@
     ) |>
     dplyr::select(
       targetCohortId, targetCohortName, ordinalId, sectionLabel, lineItemLabel,
-      patientLine, statisticType, timeLabel, subjectCount, pct
+      patientLine, statisticType, timeLabel, subjectCount, totSubjects, pct
     ) |>
     dplyr::arrange(
       targetCohortId, ordinalId, lineItemLabel

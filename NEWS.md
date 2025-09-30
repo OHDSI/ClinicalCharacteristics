@@ -1,3 +1,7 @@
+# ClinicalCharacteristics 1.0.1
+
+* Add totSubjects column to clarify denominator
+
 # ClinicalCharacteristics 1.0.0
 
 * Re-structure ClinChar using R6 classes
