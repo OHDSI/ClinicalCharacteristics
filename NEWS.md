@@ -2,6 +2,7 @@
 
 * Add totSubjects column to clarify denominator
 * Add function for observedTimeToFirst
+* Add Symposium vignette
 
 # ClinicalCharacteristics 1.0.0
 

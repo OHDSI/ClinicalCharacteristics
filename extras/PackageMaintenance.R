@@ -41,6 +41,11 @@ rmarkdown::render("vignettes/clinChar_demo.Rmd",
                   rmarkdown::pdf_document(latex_engine = "pdflatex", toc = TRUE, number_sections = TRUE))
 unlink("extras/pdf_vignette/clinChar_demo.tex")
 
+rmarkdown::render("vignettes/symposium_demo.Rmd",
+                  output_file = "../extras/pdf_vignette/symposium_demo.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex", toc = TRUE, number_sections = TRUE))
+unlink("extras/pdf_vignette/symposium_demo.tex")
+
 
 # 4) build site ------------------------
 pkgdown::build_site()
