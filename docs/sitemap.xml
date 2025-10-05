@@ -13,6 +13,9 @@
     <loc>/articles/index.html</loc>
   </url>
   <url>
+    <loc>/articles/symposium_demo.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
   </url>
   <url>
@@ -209,6 +212,9 @@
   </url>
   <url>
     <loc>/reference/observedPresenceStat.html</loc>
+  </url>
+  <url>
+    <loc>/reference/observedTimeToFirst.html</loc>
   </url>
   <url>
     <loc>/reference/parseCohortInfoFromDf.html</loc>

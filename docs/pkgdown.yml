@@ -3,5 +3,6 @@ pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   clinChar_demo: clinChar_demo.html
-last_built: 2025-07-14T17:01Z
+  symposium_demo: symposium_demo.html
+last_built: 2025-10-05T18:13Z
 
