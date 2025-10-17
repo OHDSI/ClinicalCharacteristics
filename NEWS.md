@@ -1,3 +1,7 @@
+# ClinicalCharacteristics 1.2.0
+
+* Fix continuous distribution to add zeros to summary
+
 # ClinicalCharacteristics 1.1.0
 
 * Add totSubjects column to clarify denominator

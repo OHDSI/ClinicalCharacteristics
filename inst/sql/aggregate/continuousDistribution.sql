@@ -44,12 +44,12 @@ FROM (
         SELECT * FROM (
             SELECT
                 t1.cohort_definition_id as target_cohort_id, t1.subject_id, d.*
-            FROM (SELECT DISTINCT cohort_definition_id, subject_id FROM scratch_lavallem_rwesnow_schema.eggf9x8mtarget_cohorts) t1
+            FROM (SELECT DISTINCT cohort_definition_id, subject_id FROM @target_cohort_table) t1
             CROSS JOIN #ts_meta d
         )
         WHERE statistic_type = 'continuousDistribution'
     ) t
-    LEFT JOIN (SELECT * FROM #pat_ts_tab WHERE statistic_type = 'continuousDistribution') m1
+    LEFT JOIN (SELECT * FROM @pat_ts_tab WHERE statistic_type = 'continuousDistribution') m1
     on t.target_cohort_id = m1.target_cohort_id AND
         t.subject_id = m1.subject_id AND
         t.ordinal_id = m1.ordinal_id AND

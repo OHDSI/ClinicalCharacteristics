@@ -1381,8 +1381,7 @@ ContinuousDistribution <- R6::R6Class(
       )
     }
   ),
-  private = list(
-  )
+  private = list()
 )
 
 ### Score ------------------------

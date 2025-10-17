@@ -876,6 +876,7 @@
           sql = aggSqlTb2$aggSql[i],
           continuous_table = aggSqlTb2$aggTable[i],
           pat_ts_tab  = buildOptions$patientLevelTableShellTempTable
+          target_cohort_table = buildOptions$targetCohortTempTable,
         ) |>
           SqlRender::translate(
             targetDialect = executionSettings$getDbms(),
