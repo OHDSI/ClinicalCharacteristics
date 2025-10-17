@@ -60,7 +60,7 @@ FROM (
                 t1.cohort_definition_id as target_cohort_id, t1.subject_id, t1.cohort_start_date,
                 t1.cohort_end_date,
                 d1.*, tw.time_a, tw.time_b
-            FROM (SELECT * FROM @target_cohorts) t1
+            FROM (SELECT * FROM @target_cohort_table) t1
             CROSS JOIN (
                 SELECT * FROM @ts_meta WHERE statistic_type = 'yearly_intervalRate' AND person_line_transformation = 'observedCount'
             ) d1

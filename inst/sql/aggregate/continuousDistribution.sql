@@ -45,7 +45,7 @@ FROM (
             SELECT
                 t1.cohort_definition_id as target_cohort_id, t1.subject_id, d.*
             FROM (SELECT DISTINCT cohort_definition_id, subject_id FROM @target_cohort_table) t1
-            CROSS JOIN #ts_meta d
+            CROSS JOIN @ts_meta d
         )
         WHERE statistic_type = 'continuousDistribution'
     ) t
