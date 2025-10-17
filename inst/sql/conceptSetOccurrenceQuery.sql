@@ -25,3 +25,4 @@ INNER JOIN (
   WHERE time_label IN ('{time_labels}')
 ) tw ON DATEADD(day, tw.time_a, t.cohort_start_date) <= d.{domainTranslation$event_date}
   AND DATEADD(day, tw.time_b, t.cohort_start_date) >= d.{domainTranslation$event_date}
+
