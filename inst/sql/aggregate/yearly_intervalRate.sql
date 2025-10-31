@@ -35,7 +35,10 @@ FROM (
     PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY m.event_per_interval) as p90,
     max(m.event_per_interval) AS max
   FROM (
- SELECT
+    {@continuous_event_type == "all"} ?
+    {
+    /* All events in population*/
+    SELECT
         d.target_cohort_id,
         d.subject_id,
         d.ordinal_id,
@@ -64,7 +67,7 @@ FROM (
             CROSS JOIN (
                 SELECT * FROM @ts_meta WHERE statistic_type = 'yearly_intervalRate' AND person_line_transformation = 'observedCount'
             ) d1
-            INNER JOIN @time_windows tw ON d1.time_label = tw.time_label
+            INNER JOIN @time_window tw ON d1.time_label = tw.time_label
         ) g
       ) d
       LEFT JOIN (
@@ -72,12 +75,10 @@ FROM (
     ) r
       ON d.target_cohort_id = r.target_cohort_id AND d.subject_id = r.subject_id AND d.time_label = r.time_label AND
       d.ordinal_id = r.ordinal_id AND d.line_item_label = r.line_item_label AND d.patient_line = r.patient_line AND d.statistic_type = r.statistic_type
-) m
-  GROUP BY target_cohort_id, ordinal_id, time_label, line_item_label, patient_line, statistic_type
-) t
-;
-
-/* Pnly events that occur
+      }
+    {@continuous_event_type == "events"} ?
+    {
+      /* Only events that occur */
       SELECT
         d.target_cohort_id,
         d.subject_id,
@@ -109,4 +110,11 @@ FROM (
       ) r
       ON d.target_cohort_id = r.cohort_definition_id AND d.subject_id = r.subject_id AND d.time_label = r.time_label
       WHERE d.statistic_type = 'yearly_intervalRate' AND d.patient_line = 'observedCount'
-*/
+    }
+) m
+  GROUP BY target_cohort_id, ordinal_id, time_label, line_item_label, patient_line, statistic_type
+) t
+;
+
+
+

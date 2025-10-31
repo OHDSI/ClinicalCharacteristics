@@ -604,6 +604,7 @@ BuildOptions <- R6::R6Class(
     #' @param categoricalSummaryTempTable the name of the categorical summary table used in execution. Defaults as a temp table #categorical_table
     #' @param continuousSummaryTempTable the name of the continuous summary table used in execution. Defaults as a temp table #continuous_table
     #' @param cohortAnalysisType a toggle specifying if in a cohort Char whether to use the cohort era ('era') or just the start date ('startDate')
+    #' @param continuousEventType a toggle specifying if the continuous aggregation should be on the full population or persons with events
     initialize = function(codesetTempTable = NULL,
                           sourceCodesetTempTable = NULL,
                           timeWindowTempTable = NULL,
@@ -615,7 +616,8 @@ BuildOptions <- R6::R6Class(
                           patientLevelTableShellTempTable = NULL,
                           categoricalSummaryTempTable = NULL,
                           continuousSummaryTempTable = NULL,
-                          cohortAnalysisType = NULL
+                          cohortAnalysisType = NULL,
+                          continuousEventType = NULL
                           ) {
       .setString(private = private, key = ".codesetTempTable", value = codesetTempTable)
       .setString(private = private, key = ".sourceCodesetTempTable", value = sourceCodesetTempTable)
@@ -629,6 +631,7 @@ BuildOptions <- R6::R6Class(
       .setString(private = private, key = ".categoricalSummaryTempTable", value = categoricalSummaryTempTable)
       .setString(private = private, key = ".continuousSummaryTempTable", value = continuousSummaryTempTable)
       .setString(private = private, key = ".cohortAnalysisType", value = cohortAnalysisType)
+      .setString(private = private, key = ".continuousEventType", value = continuousEventType)
     }
   ),
   private = list(
@@ -643,7 +646,8 @@ BuildOptions <- R6::R6Class(
     .patientLevelTableShellTempTable = NULL,
     .categoricalSummaryTempTable = NULL,
     .continuousSummaryTempTable = NULL,
-    .cohortAnalysisType = NULL
+    .cohortAnalysisType = NULL,
+    .continuousEventType = NULL
   ),
 
   active = list(
@@ -706,6 +710,11 @@ BuildOptions <- R6::R6Class(
     #' @field cohortAnalysisType toggle to choose if using cohort era or start date
     cohortAnalysisType = function(value) {
       .setActiveString(private = private, key = ".cohortAnalysisType", value = value)
+    },
+
+    #' @field continuousEventType toggle to choose if you are summarizing all pop or just events
+    continuousEventType = function(value) {
+      .setActiveString(private = private, key = ".continuousEventType", value = value)
     }
   )
 )

@@ -35,6 +35,8 @@ FROM (
     PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY m.value) as p90,
     max(m.value) AS max
   FROM (
+    {@continuous_event_type == "all"} ?
+    {
     /* Provide option for distribution of events for all patients */
     SELECT
         t.target_cohort_id, t.subject_id, t.ordinal_id, t.time_label, t.line_item_label,
@@ -57,11 +59,13 @@ FROM (
         t.line_item_label = m1.line_item_label AND
         t.person_line_transformation = m1.patient_line AND
         t.statistic_type = m1.statistic_type
-      /* Provide option for distribution of events for only those that have it
+    }
+    {@continuous_event_type == "events"} ? {
+      /* Provide option for distribution of events for only those that have it */
       SELECT d.*
       FROM @pat_ts_tab d
       WHERE d.statistic_type = 'continuousDistribution'
-    */
+    }
   ) m
   GROUP BY target_cohort_id, ordinal_id, time_label, line_item_label, patient_line, statistic_type
 ) t

@@ -1,6 +1,6 @@
 # ClinicalCharacteristics 1.2.0
 
-* Fix continuous distribution to add zeros to summary
+* Add option to aggregate continuous measure by either full population or just population with events
 
 # ClinicalCharacteristics 1.1.0
 

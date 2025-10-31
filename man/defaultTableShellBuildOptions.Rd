@@ -16,7 +16,8 @@ defaultTableShellBuildOptions(
   patientLevelTableShellTempTable = "#pat_ts_tab",
   categoricalSummaryTempTable = "#categorical_table",
   continuousSummaryTempTable = "#continuous_table",
-  cohortAnalysisType = c("era", "startDate")
+  cohortAnalysisType = c("era", "startDate"),
+  continuousEventType = c("all", "events")
 )
 }
 \arguments{
@@ -40,7 +41,9 @@ defaultTableShellBuildOptions(
 
 \item{continuousSummaryTempTable}{the name of the continuous summary table used in execution. Defaults as a temp table #continuous_table}
 
-\item{useCohortEra}{a true false toggle specifying if in a cohort Char whether to use the cohort era (TRUE) or just the start date (FALSE)}
+\item{cohortAnalysisType}{a toggle specifying if in a cohort Char whether to use the cohort era ('era') or just the start date ('startDate')}
+
+\item{continuousEventType}{a toggle specifying if the continuous aggregation should be on the full population or persons with events}
 }
 \value{
 A BuildOptions object
