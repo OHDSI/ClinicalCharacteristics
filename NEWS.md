@@ -1,3 +1,7 @@
+# ClinicalCharacteristics 1.2.0
+
+* Add option to aggregate continuous measure by either full population or just population with events
+
 # ClinicalCharacteristics 1.1.0
 
 * Add totSubjects column to clarify denominator

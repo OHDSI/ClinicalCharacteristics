@@ -93,7 +93,8 @@ createExecutionSettings <- function(connectionDetails,
 #' @param patientLevelTableShellTempTable the name of the patient level data table with additional meta info used in execution. Defaults as a temp table #pat_ts_tab
 #' @param categoricalSummaryTempTable the name of the categorical summary table used in execution. Defaults as a temp table #categorical_table
 #' @param continuousSummaryTempTable the name of the continuous summary table used in execution. Defaults as a temp table #continuous_table
-#' @param useCohortEra a true false toggle specifying if in a cohort Char whether to use the cohort era (TRUE) or just the start date (FALSE)
+#' @param cohortAnalysisType a toggle specifying if in a cohort Char whether to use the cohort era ('era') or just the start date ('startDate')
+#' @param continuousEventType a toggle specifying if the continuous aggregation should be on the full population or persons with events
 #' @return A BuildOptions object
 #' @export
 defaultTableShellBuildOptions <- function(codesetTempTable = "#codeset",
@@ -107,11 +108,13 @@ defaultTableShellBuildOptions <- function(codesetTempTable = "#codeset",
                                           patientLevelTableShellTempTable = "#pat_ts_tab",
                                           categoricalSummaryTempTable = "#categorical_table",
                                           continuousSummaryTempTable = "#continuous_table",
-                                          cohortAnalysisType = c("era", "startDate")
+                                          cohortAnalysisType = c("era", "startDate"),
+                                          continuousEventType = c("all", "events")
                                           ) {
 
 
   cohortAnalysisType <- match.arg(cohortAnalysisType)
+  continuousEventType <- match.arg(continuousEventType)
 
   buildOpts <- BuildOptions$new(
     codesetTempTable = codesetTempTable,
@@ -125,7 +128,8 @@ defaultTableShellBuildOptions <- function(codesetTempTable = "#codeset",
     patientLevelTableShellTempTable = patientLevelTableShellTempTable,
     categoricalSummaryTempTable = categoricalSummaryTempTable,
     continuousSummaryTempTable = continuousSummaryTempTable,
-    cohortAnalysisType = cohortAnalysisType
+    cohortAnalysisType = cohortAnalysisType,
+    continuousEventType = continuousEventType
   )
   return(buildOpts)
 

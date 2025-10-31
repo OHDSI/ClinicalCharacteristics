@@ -864,7 +864,9 @@
           continuous_table = aggSqlTb2$aggTable[i],
           pat_ts_tab  = buildOptions$patientLevelTableShellTempTable,
           target_cohort_table = buildOptions$targetCohortTempTable,
-          time_window = buildOptions$timeWindowTempTable
+          ts_meta = buildOptions$tsMetaTempTable,
+          time_window = buildOptions$timeWindowTempTable,
+          continuous_event_type = buildOptions$continuousEventType
         ) |>
           SqlRender::translate(
             targetDialect = executionSettings$getDbms(),
@@ -875,7 +877,10 @@
         aggSqlBind[[i]] <- SqlRender::render(
           sql = aggSqlTb2$aggSql[i],
           continuous_table = aggSqlTb2$aggTable[i],
-          pat_ts_tab  = buildOptions$patientLevelTableShellTempTable
+          pat_ts_tab  = buildOptions$patientLevelTableShellTempTable,
+          ts_meta = buildOptions$tsMetaTempTable,
+          target_cohort_table = buildOptions$targetCohortTempTable,
+          continuous_event_type = buildOptions$continuousEventType
         ) |>
           SqlRender::translate(
             targetDialect = executionSettings$getDbms(),
