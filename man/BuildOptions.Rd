@@ -32,6 +32,8 @@ An R6 class to define build options for the tableShell
 \item{\code{continuousSummaryTempTable}}{table name for continuous summary table}
 
 \item{\code{cohortAnalysisType}}{toggle to choose if using cohort era or start date}
+
+\item{\code{continuousEventType}}{toggle to choose if you are summarizing all pop or just events}
 }
 \if{html}{\out{</div>}}
 }
@@ -59,7 +61,8 @@ An R6 class to define build options for the tableShell
   patientLevelTableShellTempTable = NULL,
   categoricalSummaryTempTable = NULL,
   continuousSummaryTempTable = NULL,
-  cohortAnalysisType = NULL
+  cohortAnalysisType = NULL,
+  continuousEventType = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -89,6 +92,8 @@ An R6 class to define build options for the tableShell
 \item{\code{continuousSummaryTempTable}}{the name of the continuous summary table used in execution. Defaults as a temp table #continuous_table}
 
 \item{\code{cohortAnalysisType}}{a toggle specifying if in a cohort Char whether to use the cohort era ('era') or just the start date ('startDate')}
+
+\item{\code{continuousEventType}}{a toggle specifying if the continuous aggregation should be on the full population or persons with events}
 }
 \if{html}{\out{</div>}}
 }
