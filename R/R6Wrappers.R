@@ -471,8 +471,8 @@ createSourceConceptSetLineItem <- function(sectionLabel = NA_character_,
     domainTable = domain,
     sourceConceptSet = sourceConceptSet,
     timeInterval = timeInterval,
-    statistic = statistic,
-    typeConceptIds = typeConceptIds
+    statistic = statistic#,
+    #typeConceptIds = typeConceptIds
   )
   return(scsDefinition)
 
@@ -515,8 +515,8 @@ createSourceConceptSetLineItemBatch <- function(sectionLabel,
       statistic = statistic,
       domain = domain,
       sourceConceptSet = .x,
-      timeInterval = .y,
-      typeConceptIds = typeConceptIds
+      timeInterval = .y#,
+      #typeConceptIds = typeConceptIds
     )
   ) |>
     unname()
