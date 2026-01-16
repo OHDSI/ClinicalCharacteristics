@@ -19,9 +19,7 @@ FROM (
     t1.tot_subjects,
     COUNT(DISTINCT SUBJECT_ID) AS subject_count
   FROM (
-      SELECT p.*
-      FROM @pat_ts_tab p
-      WHERE p.statistic_type = 'scoreTransformation'
+      SELECT * FROM #pat_ts_score1
   ) t1
   GROUP BY target_cohort_id, ordinal_id, time_label, line_item_label, patient_line, tot_subjects
 ) t2
@@ -65,7 +63,7 @@ FROM (
     PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY m.charlson_score) as p90,
     max(m.charlson_score) AS max
   FROM (
-      SELECT * FROM #pat_ts_score
+      SELECT * FROM #pat_ts_score2
   ) m
   GROUP BY target_cohort_id, time_label, patient_line, section_label, statistic_type
 ) t

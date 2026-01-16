@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ClinicalCharacteristics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
@@ -72,7 +72,8 @@
 <span>  patientLevelTableShellTempTable <span class="op">=</span> <span class="st">"#pat_ts_tab"</span>,</span>
 <span>  categoricalSummaryTempTable <span class="op">=</span> <span class="st">"#categorical_table"</span>,</span>
 <span>  continuousSummaryTempTable <span class="op">=</span> <span class="st">"#continuous_table"</span>,</span>
-<span>  cohortAnalysisType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"era"</span>, <span class="st">"startDate"</span><span class="op">)</span></span>
+<span>  cohortAnalysisType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"era"</span>, <span class="st">"startDate"</span><span class="op">)</span>,</span>
+<span>  continuousEventType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"events"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -118,8 +119,12 @@
 <dd><p>the name of the continuous summary table used in execution. Defaults as a temp table #continuous_table</p></dd>
 
 
-<dt>useCohortEra</dt>
-<dd><p>a true false toggle specifying if in a cohort Char whether to use the cohort era (TRUE) or just the start date (FALSE)</p></dd>
+<dt>cohortAnalysisType</dt>
+<dd><p>a toggle specifying if in a cohort Char whether to use the cohort era ('era') or just the start date ('startDate')</p></dd>
+
+
+<dt>continuousEventType</dt>
+<dd><p>a toggle specifying if the continuous aggregation should be on the full population or persons with events</p></dd>
 
 </dl></div>
     <div id="value">
