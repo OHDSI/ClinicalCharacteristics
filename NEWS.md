@@ -1,3 +1,7 @@
+# ClinicalCharacteristics 1.3.0
+
+* Change CCI to group diabetes, liver disease and cancer to prefer most severe
+
 # ClinicalCharacteristics 1.2.0
 
 * Add option to aggregate continuous measure by either full population or just population with events
