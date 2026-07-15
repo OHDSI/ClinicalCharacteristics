@@ -30,8 +30,9 @@ FROM (
                       on t.subject_id = OP.person_id and t.cohort_start_date >= OP.observation_period_start_date and t.cohort_start_date <= op.observation_period_end_date
                     CROSS JOIN @time_window tw
                 ) a
-                -- Ensure patient has fulfilled observation period and left side of time interval to be in denom
+                -- Ensure patient has fulfilled observation period and both left and right side of time interval to be in denom
                 WHERE DATEADD(day, a.time_a, a.cohort_start_date) >= a.observation_period_start_date AND DATEADD(day, a.time_a, a.cohort_start_date) <= a.cohort_end_date
+                  and DATEADD(day, a.time_b, a.cohort_start_date) >= a.observation_period_start_date AND DATEADD(day, a.time_b, a.cohort_start_date) <= a.cohort_end_date
             ) b
             GROUP BY b.cohort_definition_id, b.time_label
   ) cd
