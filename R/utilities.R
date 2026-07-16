@@ -499,7 +499,8 @@
         patient_level_data = buildOptions$patientLevelDataTempTable,
         concept_set_occurrence_table = buildOptions$conceptSetOccurrenceTempTable,
         cdm_database_schema = executionSettings$cdmDatabaseSchema,
-        ts_meta_table = buildOptions$tsMetaTempTable
+        ts_meta_table = buildOptions$tsMetaTempTable,
+        time_window_table = buildOptions$timeWindowTempTable
       )
   } else{
     adherentCountSql <- ""
@@ -595,7 +596,9 @@
         patient_level_data = buildOptions$patientLevelDataTempTable,
         cohort_occurrence_table = buildOptions$cohortOccurrenceTempTable,
         cdm_database_schema = executionSettings$cdmDatabaseSchema,
-        ts_meta_table = buildOptions$tsMetaTempTable
+        ts_meta_table = buildOptions$tsMetaTempTable,
+        time_window_table = buildOptions$timeWindowTempTable,
+        cohort_analysis_type = buildOptions$cohortAnalysisType
       )
   } else{
     adherentCountSql <- ""
