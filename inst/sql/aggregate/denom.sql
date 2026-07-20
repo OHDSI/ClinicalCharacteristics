@@ -24,7 +24,7 @@ FROM (
                 SELECT
                     a.cohort_definition_id, a.subject_id, a.cohort_start_date, a.cohort_end_date, a.time_label
                 FROM (
-                    SELECT t.*, op.observation_period_start_date, tw.time_label, tw.time_a, tw.time_b
+                    SELECT t.*, op.observation_period_start_date, op.observation_period_end_date, tw.time_label, tw.time_a, tw.time_b
                     FROM @target_cohort_table t
                     JOIN @cdm_database_schema.observation_period OP
                       on t.subject_id = OP.person_id and t.cohort_start_date >= OP.observation_period_start_date and t.cohort_start_date <= op.observation_period_end_date
