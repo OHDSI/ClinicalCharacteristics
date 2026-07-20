@@ -19,15 +19,14 @@ FROM (
     ON cc.time_label = tw.time_label
   JOIN @cdm_database_schema.observation_period OP
     on cc.subject_id = OP.person_id and cc.cohort_start_date >= OP.observation_period_start_date and cc.cohort_start_date <= op.observation_period_end_date
-  WHERE
+  WHERE 1=1
     {{@cohort_analysis_type == "era"}} ? {{
       -- cohort event era has 1+ day overlap with time window
-      cc.event_start_date <= DATEADD(day, tw.time_b, cc.cohort_start_date)
+      AND cc.event_start_date <= DATEADD(day, tw.time_b, cc.cohort_start_date)
       AND cc.event_end_date >= DATEADD(day, tw.time_a, cc.cohort_start_date)
-    }}
-    {{@cohort_analysis_type == "startDate"}} ? {{
+    }}:{{
       -- cohort event start date is within time window
-      cc.event_start_date <= DATEADD(day, tw.time_b, cc.cohort_start_date)
+      AND cc.event_start_date <= DATEADD(day, tw.time_b, cc.cohort_start_date)
       AND cc.event_start_date >= DATEADD(day, tw.time_a, cc.cohort_start_date)
     }}
     -- Ensure patient has fulfilled observation period and both left and right side of time interval are covered
